@@ -9,6 +9,8 @@ public class MainMenuGUI : MonoBehaviour {
 	public GameObject signUpPanel;
 	public GameObject loggedInPanel;
 	public GameObject postChirpsPanel;
+    public GameObject followingPanel;
+    public GameObject recentChirpsPanel;
 
 	public InputField newUsername;
 	public Text currentUsername;
@@ -26,12 +28,26 @@ public class MainMenuGUI : MonoBehaviour {
 		signUpPanel.SetActive(false);
 		loggedInPanel.SetActive(false);
 		postChirpsPanel.SetActive(false);
+        followingPanel.SetActive(false);
+        recentChirpsPanel.SetActive(true);
 	}
 	
 	// Update is called once per frame
 	void Update () {
 	
 	}
+
+    public void DisplayRecentChirpsPanel()
+    {
+        followingPanel.SetActive(false);
+        recentChirpsPanel.SetActive(true);
+    }
+
+    public void DisplayFollowingPanel()
+    {
+        followingPanel.SetActive(true);
+        recentChirpsPanel.SetActive(false);
+    }
 
 	public void DisplayLoginPanel()
 	{
