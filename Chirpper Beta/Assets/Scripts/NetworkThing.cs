@@ -9,7 +9,7 @@ using System.Collections.Generic;
 public class NetworkThing : MonoBehaviour {
 	
 	string url = "https://chirpper.herokuapp.com/";
-	string username = "John",password = "Doe",passwordConfirm="",name="name",email="email",cookie = "";
+	string username = "John",password = "Doe",passwordConfirm="",name="name",email="email",cookie = "",searchField="Search!";
 	string chirpTitle = "Chirp Something!",follow="Enter a User To Follow!";
 	Text test;
 	bool signUp = false;
@@ -40,6 +40,20 @@ public class NetworkThing : MonoBehaviour {
 		}
 	}
 
+	IEnumerator search(string search) {
+		WWWForm form = new WWWForm();
+		form.AddField( "search", search );
+		WWW download = new WWW( url, form );
+		
+		yield return download;
+		
+		if(!string.IsNullOrEmpty(download.error)) {
+			print( "Error downloading: " + download.error );
+		} else {
+			print(download.text);
+			test.text = download.text;
+		}
+	}
 
 	IEnumerator unfollowUser() {
 		WWWForm form = new WWWForm();
@@ -134,7 +148,22 @@ public class NetworkThing : MonoBehaviour {
 		}
 	}
 
-
+	
+	IEnumerator deleteChirp(int id) {
+		WWWForm form = new WWWForm();
+		//form.AddBinaryData("binary", new byte[1]);
+		form.AddField( "deleteChirp", id );	
+		
+		WWW download = new WWW( url, form);
+		yield return download;
+		
+		if (!string.IsNullOrEmpty (download.error)) {
+			print ("Error downloading: " + download.error);
+		} else {
+			test.text = download.text;
+			print (download.text);
+		}
+	}
 	
 	IEnumerator sendChirp() {
 		WWWForm form = new WWWForm();
@@ -213,8 +242,6 @@ public class NetworkThing : MonoBehaviour {
 		while (!www.audioClip.isReadyToPlay) {
 			yield return null;
 		}
-
-		print (source.clip.name + " length of " + source.clip.length);
 		source.clip = www.audioClip;
 		source.Play ();
 
@@ -222,13 +249,9 @@ public class NetworkThing : MonoBehaviour {
 
 
 	void OnGUI(){
-
-		if (GUI.Button (new Rect (410, 70, 200, 20), "stream")) {
-			StartCoroutine (stream (5));
-		}
-
-		if (GUI.Button (new Rect (410, 100, 200, 20), "get users Chirps")) {
-			StartCoroutine (getChirps ("John"));
+		searchField = GUI.TextField (new Rect (600, 10, 200, 20), searchField, 25);
+		if (GUI.Button(new Rect(800,10,200,20),"Search Chirpper!")){
+			StartCoroutine(search(searchField));
 		}
 
 		if (GUI.Button (new Rect (410, 140, 200, 20), "get Recent Chirps")) {
@@ -267,9 +290,25 @@ public class NetworkThing : MonoBehaviour {
 			//signed in
 		} else {
 			chirpTitle = GUI.TextField (new Rect (10, 10, 200, 20), chirpTitle, 25);
+
 			if (GUI.Button(new Rect(10,40,200,20),"Chirp it!")){
 				StartCoroutine(sendChirp ());
 			}
+
+			if (GUI.Button(new Rect(210,40,200,20),"Delete Chirp")){
+				StartCoroutine(deleteChirp (3));
+			}
+
+			
+			if (GUI.Button (new Rect (410, 70, 200, 20), "Stream")) {
+				StartCoroutine (stream (5));
+			}
+			
+			if (GUI.Button (new Rect (410, 100, 200, 20), "Get Users Chirps")) {
+				StartCoroutine (getChirps ("John"));
+			}
+
+
 			follow = GUI.TextField (new Rect (10, 70, 200, 20), follow, 25);
 			if (GUI.Button(new Rect(10,100,200,20),"Follow User!")){
 				StartCoroutine(followUser ());
