@@ -1,19 +1,28 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
+using System.IO;
+using System.Net;
 using System.Collections.Generic;
 
 public class NetworkThing : MonoBehaviour {
+	
 	string url = "https://chirpper.herokuapp.com/";
-	string username = "username",password = "",passwordConfirm="",name="name",email="email",cookie = "";
-	string chirp = "Chirp Something!",follow="Enter a username to follow!";
-	GUIText test;
+	string username = "John",password = "Doe",passwordConfirm="",name="name",email="email",cookie = "";
+	string chirpTitle = "Chirp Something!",follow="Enter a User To Follow!";
+	Text test;
 	bool signUp = false;
 	
-	void Start () {
-		test =  GameObject.Find("Text").GetComponent<GUIText>();
-	}
+	
+	public AudioSource source;
 
+
+	void Start () {
+		source = GetComponent<AudioSource>();
+		test =  GameObject.Find("Text").GetComponent<Text>();
+	}
+	
 	
 	IEnumerator followUser() {
 		WWWForm form = new WWWForm();
@@ -30,6 +39,24 @@ public class NetworkThing : MonoBehaviour {
 			test.text = download.text;
 		}
 	}
+
+
+	IEnumerator unfollowUser() {
+		WWWForm form = new WWWForm();
+		form.AddField( "username", username );
+		form.AddField( "unfollow", follow);
+		WWW download = new WWW( url, form );
+		
+		yield return download;
+		
+		if(!string.IsNullOrEmpty(download.error)) {
+			print( "Error downloading: " + download.error );
+		} else {
+			print(download.text);
+			test.text = download.text;
+		}
+	}
+
 	
 	IEnumerator SignUp() {
 		WWWForm form = new WWWForm();
@@ -51,11 +78,29 @@ public class NetworkThing : MonoBehaviour {
 			}
 			print(download.text);
 			test.text = download.text;
-
+			
 		}
 	}
-	
-	IEnumerator showFollowing() {
+
+
+	IEnumerator getChirps(string username) {
+		WWWForm form = new WWWForm();
+		//	Dictionary<string,string> headers = form.headers;
+		//	headers ["COOKIE"] = cookie;
+		form.AddField( "getUsersChirps", username );
+		WWW download = new WWW( url, form );
+		yield return download;
+		
+		if(!string.IsNullOrEmpty(download.error)) {
+			print( "Error downloading: " + download.error );
+		} else {
+			print(download.text);
+			test.text = download.text;
+		}
+	}
+
+
+	IEnumerator getFollowing() {
 		WWWForm form = new WWWForm();
 		//	Dictionary<string,string> headers = form.headers;
 		//	headers ["COOKIE"] = cookie;
@@ -67,18 +112,82 @@ public class NetworkThing : MonoBehaviour {
 		if(!string.IsNullOrEmpty(download.error)) {
 			print( "Error downloading: " + download.error );
 		} else {
-			// show the highscores
 			print(download.text);
 			test.text = download.text;
 		}
 	}
 
-	IEnumerator sendChirp() {
+	IEnumerator getFollowingChirps() {
 		WWWForm form = new WWWForm();
 		//	Dictionary<string,string> headers = form.headers;
 		//	headers ["COOKIE"] = cookie;
+		form.AddField( "getFollowingChirps", username );
+		WWW download = new WWW( url, form );
+		//WWW download =  new WWW( url, form);
+		yield return download;
+		
+		if(!string.IsNullOrEmpty(download.error)) {
+			print( "Error downloading: " + download.error );
+		} else {
+			print(download.text);
+			test.text = download.text;
+		}
+	}
+
+
+	
+	IEnumerator sendChirp() {
+		WWWForm form = new WWWForm();
+		FileStream fs = new FileStream ("assets\\myChirp.wav", FileMode.Open, FileAccess.Read,FileShare.Read);
+		BinaryReader reader = new BinaryReader(fs);
+		byte[] toSend = new byte[fs.Length];
+		fs.Read(toSend,0,System.Convert.ToInt32(fs.Length));
+		fs.Close ();
+		
 		form.AddField( "username", username );
-		form.AddField( "chirp", chirp );
+		form.AddField( "chirpTitle", chirpTitle );
+		
+		form.AddBinaryData ("chirpData", toSend);
+		WWW download =  new WWW( url, form);
+		yield return download;
+		
+		if(!string.IsNullOrEmpty(download.error)) {
+			print( "Error downloading: " + download.error );
+		} else {
+			print(download.text);
+			test.text = download.text;
+		}
+		
+	}
+	
+	IEnumerator Login() {
+		WWWForm form = new WWWForm();
+		//form.AddBinaryData("binary", new byte[1]);
+		form.AddField( "login", username );
+		form.AddField( "username", username );
+		form.AddField( "password", password );		
+		
+		WWW download = new WWW( url, form);
+		yield return download;
+		
+		if(!string.IsNullOrEmpty(download.error)) {
+			print( "Error downloading: " + download.error );
+		} else {
+			//gets number of followers, number of users following, and number of chirps in title
+			test.text = download.text;
+			print(download.text);
+			
+			if(download.responseHeaders.ContainsKey("SET-COOKIE")){
+				cookie = download.responseHeaders["SET-COOKIE"];
+			}
+		}
+	}
+
+	IEnumerator getRecentChirps() {
+		WWWForm form = new WWWForm();
+		//	Dictionary<string,string> headers = form.headers;
+		//	headers ["COOKIE"] = cookie;
+		form.AddField( "getRecentChirps", "" );
 		WWW download = new WWW( url, form );
 		//WWW download =  new WWW( url, form);
 		yield return download;
@@ -91,45 +200,57 @@ public class NetworkThing : MonoBehaviour {
 			test.text = download.text;
 		}
 	}
-	
-	IEnumerator Login() {
-		WWWForm form = new WWWForm();
-		//form.AddBinaryData("binary", new byte[1]);
-		form.AddField( "username", username );
-		form.AddField( "password", password );		
 
-		WWW download = new WWW( url, form);
-		yield return download;
-		
-		if(!string.IsNullOrEmpty(download.error)) {
-			print( "Error downloading: " + download.error );
-		} else {
-			test.text = download.text;
-			print(download.text);
-			
-			if(download.responseHeaders.ContainsKey("SET-COOKIE")){
-				cookie = download.responseHeaders["SET-COOKIE"];
-			}
+
+	IEnumerator stream(int id) {
+		WWW www = new WWW("https://s3.amazonaws.com/chirpper/" + id + ".wav");
+		//wait for 10% buffer
+		while (www.progress < 0.1f) {
+			yield return null;
 		}
+		//set audio clip stream up
+		source.clip = www.GetAudioClip (false, true,AudioType.WAV);
+		while (!www.audioClip.isReadyToPlay) {
+			yield return null;
+		}
+
+		print (source.clip.name + " length of " + source.clip.length);
+		source.clip = www.audioClip;
+		source.Play ();
+
 	}
-	
+
+
 	void OnGUI(){
+
+		if (GUI.Button (new Rect (410, 70, 200, 20), "stream")) {
+			StartCoroutine (stream (5));
+		}
+
+		if (GUI.Button (new Rect (410, 100, 200, 20), "get users Chirps")) {
+			StartCoroutine (getChirps ("John"));
+		}
+
+		if (GUI.Button (new Rect (410, 140, 200, 20), "get Recent Chirps")) {
+			StartCoroutine (getRecentChirps ());
+		}
+
 		//not signed in
 		if (cookie == "") {
-
+			
 			username = GUI.TextField (new Rect (10, 10, 200, 20), username, 25);
 			password = GUI.PasswordField (new Rect (10, 40, 200, 20), password, '*', 25);
-
+			
 			//default view
 			if (!signUp) {
-				if (GUI.Button (new Rect (10, 70, 100, 20), "Login")) {
+				if (GUI.Button (new Rect (10, 70, 200, 20), "Login")) {
 					StartCoroutine (Login ());
 				}
-				if (GUI.Button (new Rect (10, 100, 100, 20), "Sign Up")) {
+				if (GUI.Button (new Rect (10, 100, 200, 20), "Sign Up")) {
 					signUp = true;
 					
 				}	
-			//attempting to sign up
+				//attempting to sign up
 			} else {
 				passwordConfirm = GUI.PasswordField(new Rect(10, 70, 200, 20), passwordConfirm,'*', 25);
 				name = GUI.TextField(new Rect(10, 100, 200, 20), name, 25);
@@ -142,10 +263,10 @@ public class NetworkThing : MonoBehaviour {
 					signUp = false;
 				}	
 			}
-
+			
 			//signed in
 		} else {
-			chirp = GUI.TextField (new Rect (10, 10, 200, 20), chirp, 25);
+			chirpTitle = GUI.TextField (new Rect (10, 10, 200, 20), chirpTitle, 25);
 			if (GUI.Button(new Rect(10,40,200,20),"Chirp it!")){
 				StartCoroutine(sendChirp ());
 			}
@@ -154,13 +275,22 @@ public class NetworkThing : MonoBehaviour {
 				StartCoroutine(followUser ());
 			}
 
-			if (GUI.Button(new Rect(10,130,200,20),"Show Who I'm Following")){
-				StartCoroutine(showFollowing ());
+			if (GUI.Button(new Rect(210,100,200,20),"Unfollow User!")){
+				StartCoroutine(unfollowUser ());
+			}
+			
+			if (GUI.Button(new Rect(10,130,200,20),"Get Who I'm Following")){
+				StartCoroutine(getFollowing ());
+			}
+
+
+			if (GUI.Button(new Rect(10,160,200,20),"Chirps From Users I'm Following")){
+				StartCoroutine(getFollowingChirps ());
 			}
 		}
-
 		
-
+		
+		
 	}
 	
 }
