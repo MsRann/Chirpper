@@ -1,0 +1,53 @@
+Login(string username, string password)
+	if successful:
+		- Number of users following
+		- Number of followers
+		- Number of chirps
+	if unsuccessful:
+		- "false"
+
+search(string search)
+	- Up to 5 usernames ("user", username)
+	- Up to 8 chirps ("chirp", id, username, title)
+
+followUser(string username, string followUsername)
+	- Current number of people the username is following
+
+unfollowUser(string username, string followUsername)
+	- Current number of people the username is following
+
+deleteChirp(string username, string id)
+	- Current number of posts by the username
+
+sendChirp(string username, string title, BinaryData audioFile)
+	- Current number of posts by the username
+
+signUp(string username, string password, string email, string name)
+	if successful:
+		- "true"
+	if unsuccessful:
+		- "false"
+
+getUsersChirps(string username)
+	- Up to 8 chirps (id, title)
+
+
+getFollowingChirps(string username)
+	- Up to 8 chirps (id, username, title)
+
+getRecentChirps()
+	- Up to 8 chirps (id, username, title)
+
+getFollowers(string username)
+	- Number of followers
+	- Follower usernames
+
+getFollowing(string username)
+	- Number of following
+	- Following usernames
+
+getUserInfo(string username)
+	- Number of users following
+	- Number of followers
+	- Number of chirps
+
