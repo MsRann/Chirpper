@@ -12,16 +12,29 @@ public class MainMenuGUI : MonoBehaviour {
     public GameObject followingPanel;
     public GameObject recentChirpsPanel;
 
-	public InputField newUsername;
-	public Text currentUsername;
+    public InputField newUsername;
+
+    public InputField oldUsername;
+    public InputField oldPassword;
+
+    public Text currentUsername;
+    public Text currentChirpsText;
+    public Text currentFollowersText;
+    public Text currentFollowingText;
+
+    static string currentChirps;
+    static string currentFollowers;
+    static string currentFollowing;
 
 	public GameObject meowingSFX;
 	public Button playButton;
 	public Sprite pauseSprite;
 
-	// Use this for initialization
-	void Start () {
+    static string[] data;
 
+	// Use this for initialization
+	void Start () 
+    {
         Screen.showCursor = true;
 
 		loginPanel.SetActive(false);
@@ -32,10 +45,25 @@ public class MainMenuGUI : MonoBehaviour {
         recentChirpsPanel.SetActive(true);
 	}
 	
-	// Update is called once per frame
-	void Update () {
-	
+	void FixedUpdate () 
+    {
+        currentFollowingText.text = currentFollowing;
+        currentFollowersText.text = currentFollowers;
+        currentChirpsText.text = currentChirps;
 	}
+
+    public static void SetUserInfo(string following, string followers, string chirps)
+    {
+        currentFollowing = following;
+        currentFollowers = followers;
+        currentChirps = chirps;
+    }
+
+    public void LoginUser()
+    {
+        MyNetwork.login(oldUsername.text, oldPassword.text);
+        currentUsername.text = newUsername.text;
+    }
 
     public void DisplayRecentChirpsPanel()
     {

@@ -6,24 +6,29 @@ using System.IO;
 using System.Net;
 using System.Collections.Generic;
 
-public class NetworkThing : MonoBehaviour {
+public class MyNetwork : MonoBehaviour {
 	
-	string url = "https://chirpper.herokuapp.com/";
-	string username = "John",password = "Doe",passwordConfirm="",name="name",email="email",cookie = "",searchField="Search!";
-	string chirpTitle = "Chirp Something!",follow="Enter a User To Follow!";
+	static string url = "https://chirpper.herokuapp.com/";
+	string username = "John";
+    string password = "Doe";
+    string passwordConfirm="";
+    string name="name";
+    string email="email";
+    static string cookie = "";
+    string searchField="Search!";
+	string chirpTitle = "Chirp Something!";
+    string follow="Enter a User To Follow!";
 	Text test;
-	bool signUp = false;
-	string[] delim = {"\\"};
+	bool signedUp = false;
+	static string[] delim = {"\\"};
 	
 	public AudioSource source;
 
-
-
-	void Start () {
+	void Start () 
+    {
 		source = GetComponent<AudioSource>();
 		test =  GameObject.Find("Text").GetComponent<Text>();
 	}
-	
 	
 	IEnumerator followUser() {
 		WWWForm form = new WWWForm();
@@ -72,8 +77,7 @@ public class NetworkThing : MonoBehaviour {
 		}
 	}
 
-	
-	IEnumerator SignUp() {
+	IEnumerator signUp() {
 		WWWForm form = new WWWForm();
 		form.AddField( "signUp", "true" );	
 		form.AddField( "username", username );
@@ -89,11 +93,10 @@ public class NetworkThing : MonoBehaviour {
 		} else {
 			if(download.responseHeaders.ContainsKey("SET-COOKIE")){
 				cookie = download.responseHeaders["SET-COOKIE"];
-				signUp = false;
+                signedUp = false;
 			}
 			print(download.text);
-			test.text = download.text;
-			
+			test.text = download.text;	
 		}
 	}
 
@@ -168,7 +171,6 @@ public class NetworkThing : MonoBehaviour {
 			test.text = download.text;
 		}
 	}
-
 	
 	IEnumerator deleteChirp(int id) {
 		WWWForm form = new WWWForm();
@@ -207,15 +209,14 @@ public class NetworkThing : MonoBehaviour {
 			print(download.text);
 			test.text = download.text;
 		}
-		
 	}
 	
-	IEnumerator Login() {
+	public static IEnumerator login(string oldUsername, string oldPassword) {
 		WWWForm form = new WWWForm();
 		//form.AddBinaryData("binary", new byte[1]);
-		form.AddField( "login", username );
-		form.AddField( "username", username );
-		form.AddField( "password", password );		
+        form.AddField("login", oldUsername);
+        form.AddField("username", oldUsername);
+        form.AddField("password", oldPassword);		
 		
 		WWW download = new WWW( url, form);
 		yield return download;
@@ -229,6 +230,16 @@ public class NetworkThing : MonoBehaviour {
 			for (int i = 0; i < words.Length; i ++){
 				print(i + ": " + words[i]);
 			}
+
+            if (words[0] == "false")
+            {
+                // Display an error message
+            }
+            else 
+            {
+                // Collect info to display on user profile page
+                MainMenuGUI.SetUserInfo(words[1], words[2], words[3]);
+            }
 
 
 			if(download.responseHeaders.ContainsKey("SET-COOKIE")){
@@ -255,7 +266,6 @@ public class NetworkThing : MonoBehaviour {
 		}
 	}
 
-
 	IEnumerator stream(int id) {
 		WWW www = new WWW("https://s3.amazonaws.com/chirpper/" + id + ".wav");
 		//wait for 10% buffer
@@ -269,11 +279,9 @@ public class NetworkThing : MonoBehaviour {
 		}
 		source.clip = www.audioClip;
 		source.Play ();
-
 	}
 
-
-	void OnGUI(){
+	/*void OnGUI(){
 		searchField = GUI.TextField (new Rect (600, 10, 200, 20), searchField, 25);
 		if (GUI.Button(new Rect(800,10,200,20),"Search Chirpper!")){
 			StartCoroutine(search(searchField));
@@ -290,12 +298,13 @@ public class NetworkThing : MonoBehaviour {
 			password = GUI.PasswordField (new Rect (10, 40, 200, 20), password, '*', 25);
 			
 			//default view
-			if (!signUp) {
+            if (!signedUp)
+            {
 				if (GUI.Button (new Rect (10, 70, 200, 20), "Login")) {
 					StartCoroutine (Login ());
 				}
 				if (GUI.Button (new Rect (10, 100, 200, 20), "Sign Up")) {
-					signUp = true;
+                    signedUp = true;
 					
 				}	
 				//attempting to sign up
@@ -304,11 +313,11 @@ public class NetworkThing : MonoBehaviour {
 				name = GUI.TextField(new Rect(10, 100, 200, 20), name, 25);
 				email = GUI.TextField(new Rect(10, 130, 200, 20), email, 25);
 				if (GUI.Button (new Rect (10, 220, 200, 20), "Sign Up")) {
-					signUp = true;
-					StartCoroutine (SignUp ());
+                    signedUp = true;
+                    StartCoroutine(signUp());
 				}	
 				if (GUI.Button (new Rect (10, 190, 200, 20), "Cancel")) {
-					signUp = false;
+                    signedUp = false;
 				}	
 			}
 			
@@ -356,9 +365,5 @@ public class NetworkThing : MonoBehaviour {
 				StartCoroutine(getFollowingChirps ());
 			}
 		}
-		
-		
-		
-	}
-	
+	}*/
 }
