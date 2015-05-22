@@ -54,7 +54,7 @@
      <Compile Include="Assets\Skybox\Fantasy Skybox FREE\Scripts\FSPlayer.cs" />
      <None Include="Assets\Skybox\Fantasy Skybox FREE\Readme\Readme.txt" />
  <Reference Include="Assembly-UnityScript-firstpass">
- <HintPath>C:/Users/sk/Documents/GitHub/Chirpper/Chirpper Beta/Library/ScriptAssemblies/Assembly-UnityScript-firstpass.dll</HintPath>
+ <HintPath>C:/Users/Steve/Documents/GitHub/Chirpper/Chirpper Beta/Library/ScriptAssemblies/Assembly-UnityScript-firstpass.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files (x86)/Unity4.6/Editor/Data/UnityExtensions/Unity/GUISystem/4.6.1/UnityEngine.UI.dll</HintPath>

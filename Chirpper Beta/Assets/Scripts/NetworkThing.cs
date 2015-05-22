@@ -13,9 +13,10 @@ public class NetworkThing : MonoBehaviour {
 	string chirpTitle = "Chirp Something!",follow="Enter a User To Follow!";
 	Text test;
 	bool signUp = false;
-	
+	string[] delim = {"\\"};
 	
 	public AudioSource source;
+
 
 
 	void Start () {
@@ -113,21 +114,41 @@ public class NetworkThing : MonoBehaviour {
 		}
 	}
 
-
-	IEnumerator getFollowing() {
+	IEnumerator getFollowers() {
 		WWWForm form = new WWWForm();
-		//	Dictionary<string,string> headers = form.headers;
-		//	headers ["COOKIE"] = cookie;
-		form.AddField( "followingPage", username );
+		form.AddField( "getFollowers", username );
 		WWW download = new WWW( url, form );
-		//WWW download =  new WWW( url, form);
 		yield return download;
 		
 		if(!string.IsNullOrEmpty(download.error)) {
 			print( "Error downloading: " + download.error );
 		} else {
-			print(download.text);
-			test.text = download.text;
+			//gets results and stores them into string array split with delimiter \\
+			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
+			for (int i = 0; i < words.Length; i ++){
+				print(i + ": " + words[i]);
+			}
+			//print(download.text);
+			//test.text = download.text;
+		}
+	}
+
+	IEnumerator getFollowing() {
+		WWWForm form = new WWWForm();
+		form.AddField( "getFollowing", username );
+		WWW download = new WWW( url, form );
+		yield return download;
+		
+		if(!string.IsNullOrEmpty(download.error)) {
+			print( "Error downloading: " + download.error );
+		} else {
+			//gets results and stores them into string array split with delimiter \\
+			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
+			for (int i = 0; i < words.Length; i ++){
+				print(i + ": " + words[i]);
+			}
+			//print(download.text);
+			//test.text = download.text;
 		}
 	}
 
@@ -202,10 +223,14 @@ public class NetworkThing : MonoBehaviour {
 		if(!string.IsNullOrEmpty(download.error)) {
 			print( "Error downloading: " + download.error );
 		} else {
-			//gets number of followers, number of users following, and number of chirps in title
-			test.text = download.text;
-			print(download.text);
-			
+
+			//gets results and stores them into string array split with delimiter \\
+			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
+			for (int i = 0; i < words.Length; i ++){
+				print(i + ": " + words[i]);
+			}
+
+
 			if(download.responseHeaders.ContainsKey("SET-COOKIE")){
 				cookie = download.responseHeaders["SET-COOKIE"];
 			}
@@ -214,19 +239,19 @@ public class NetworkThing : MonoBehaviour {
 
 	IEnumerator getRecentChirps() {
 		WWWForm form = new WWWForm();
-		//	Dictionary<string,string> headers = form.headers;
-		//	headers ["COOKIE"] = cookie;
 		form.AddField( "getRecentChirps", "" );
 		WWW download = new WWW( url, form );
-		//WWW download =  new WWW( url, form);
 		yield return download;
 		
 		if(!string.IsNullOrEmpty(download.error)) {
 			print( "Error downloading: " + download.error );
 		} else {
-			// show the highscores
 			print(download.text);
-			test.text = download.text;
+			//gets results and stores them into string array split with delimiter \\
+			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
+			for (int i = 0; i < words.Length; i ++){
+				print(i + ": " + words[i]);
+			}
 		}
 	}
 
@@ -320,6 +345,10 @@ public class NetworkThing : MonoBehaviour {
 			
 			if (GUI.Button(new Rect(10,130,200,20),"Get Who I'm Following")){
 				StartCoroutine(getFollowing ());
+			}
+
+			if (GUI.Button(new Rect(210,130,200,20),"Get Who's Following Me")){
+				StartCoroutine(getFollowers ());
 			}
 
 
