@@ -14,6 +14,7 @@ public class MainMenuGUI : MonoBehaviour {
     public GameObject homeChirpsPanel;
     public GameObject recentChirpsPanel;
     public GameObject myChirpsPanel;
+    public GameObject loginFailedPanel;
 
     public InputField newUsername;
 
@@ -33,12 +34,19 @@ public class MainMenuGUI : MonoBehaviour {
 	public Button playButton;
 	public Sprite pauseSprite;
 
+    static string result;
+
     static string[] data;
+
+    GameObject networkObject;
+    MyNetwork myNetwork;
 
 	// Use this for initialization
 	void Start () 
     {
         Screen.showCursor = true;
+
+        result = "";
 
 		loginPanel.SetActive(false);
 		signUpPanel.SetActive(false);
@@ -49,6 +57,10 @@ public class MainMenuGUI : MonoBehaviour {
         homeChirpsPanel.SetActive(false);
         recentChirpsPanel.SetActive(true);
         myChirpsPanel.SetActive(false);
+        loginFailedPanel.SetActive(false);
+
+        networkObject = GameObject.FindGameObjectWithTag("Network");
+        myNetwork = networkObject.GetComponent<MyNetwork>();
 	}
 	
 	void FixedUpdate () 
@@ -56,7 +68,25 @@ public class MainMenuGUI : MonoBehaviour {
         currentFollowingText.text = currentFollowing;
         currentFollowersText.text = currentFollowers;
         currentChirpsText.text = currentChirps;
+
+        // If the user has successfully logged in
+        if (result == "loginTrue")
+        {
+            DisplayLoggedInPanel();
+            result = "";
+        }
+        // If the user has failed to log in
+        else if (result == "loginFalse")
+        {
+            DisplayLoginFailedPanel();
+            result = "";
+        }
 	}
+
+    public static void setResult(string newResult)
+    {
+        result = newResult;
+    }
 
     public static void SetUserInfo(string following, string followers, string chirps)
     {
@@ -67,8 +97,17 @@ public class MainMenuGUI : MonoBehaviour {
 
     public void LoginUser()
     {
-        MyNetwork.login(oldUsername.text, oldPassword.text);
-        currentUsername.text = newUsername.text;
+        Debug.Log("Trying to login...");
+        StartCoroutine (myNetwork.login(oldUsername.text.ToString(), oldPassword.text.ToString()));
+        //MyNetwork.login(oldUsername.text.ToString(), oldPassword.text.ToString());
+        //Debug.Log("TEST 2");
+        //currentUsername.text = newUsername.text;
+    }
+
+    public void DisplayLoginFailedPanel()
+    {
+        loginPanel.SetActive(false);
+        loginFailedPanel.SetActive(true);
     }
 
     public void DisplayRecentChirpsPanel()
@@ -78,6 +117,7 @@ public class MainMenuGUI : MonoBehaviour {
         homeChirpsPanel.SetActive(false);
         recentChirpsPanel.SetActive(true);
         myChirpsPanel.SetActive(false);
+        loginFailedPanel.SetActive(false);
     }
 
     public void DisplayHomeChirpsPanel()
@@ -87,6 +127,7 @@ public class MainMenuGUI : MonoBehaviour {
         homeChirpsPanel.SetActive(true);
         recentChirpsPanel.SetActive(false);
         myChirpsPanel.SetActive(false);
+        loginFailedPanel.SetActive(false);
     }
 
     public void DisplayMyChirpsPanel()
@@ -96,6 +137,7 @@ public class MainMenuGUI : MonoBehaviour {
         homeChirpsPanel.SetActive(false);
         recentChirpsPanel.SetActive(false);
         myChirpsPanel.SetActive(true);
+        loginFailedPanel.SetActive(false);
     }
 
     public void DisplayFollowingPanel()
@@ -105,6 +147,7 @@ public class MainMenuGUI : MonoBehaviour {
         recentChirpsPanel.SetActive(false);
         homeChirpsPanel.SetActive(false);
         myChirpsPanel.SetActive(false);
+        loginFailedPanel.SetActive(false);
     }
 
     public void DisplayFollowersPanel()
@@ -114,11 +157,13 @@ public class MainMenuGUI : MonoBehaviour {
         homeChirpsPanel.SetActive(false);
         recentChirpsPanel.SetActive(false);
         myChirpsPanel.SetActive(false);
+        loginFailedPanel.SetActive(false);
     }
 
 	public void DisplayLoginPanel()
 	{
 		loginPanel.SetActive(true);
+        loginFailedPanel.SetActive(false);
 	}
 
 	public void DisplaySignUpPanel()

@@ -211,18 +211,22 @@ public class MyNetwork : MonoBehaviour {
 		}
 	}
 	
-	public static IEnumerator login(string oldUsername, string oldPassword) {
-		WWWForm form = new WWWForm();
+	public IEnumerator login(string oldUsername, string oldPassword) {
+        WWWForm form = new WWWForm();
 		//form.AddBinaryData("binary", new byte[1]);
         form.AddField("login", oldUsername);
         form.AddField("username", oldUsername);
-        form.AddField("password", oldPassword);		
+        form.AddField("password", oldPassword);
+
+        Debug.Log("Checking username and password entered...");
+        Debug.Log("Username: " + oldUsername);
+        Debug.Log("Password: " + oldPassword);
 		
 		WWW download = new WWW( url, form);
 		yield return download;
 		
 		if(!string.IsNullOrEmpty(download.error)) {
-			print( "Error downloading: " + download.error );
+			Debug.Log( "Error downloading: " + download.error );
 		} else {
 
 			//gets results and stores them into string array split with delimiter \\
@@ -231,14 +235,20 @@ public class MyNetwork : MonoBehaviour {
 				print(i + ": " + words[i]);
 			}
 
+            Debug.Log("Checking result...");
+
             if (words[0] == "false")
             {
+                Debug.Log("Login Failed!");
                 // Display an error message
+                MainMenuGUI.setResult("loginFalse");
             }
             else 
             {
+                Debug.Log("Login Successful!");
                 // Collect info to display on user profile page
-                MainMenuGUI.SetUserInfo(words[1], words[2], words[3]);
+                MainMenuGUI.SetUserInfo(words[0], words[1], words[2]);
+                MainMenuGUI.setResult("loginTrue");
             }
 
 
