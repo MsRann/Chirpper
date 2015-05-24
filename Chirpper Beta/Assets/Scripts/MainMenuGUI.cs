@@ -10,7 +10,10 @@ public class MainMenuGUI : MonoBehaviour {
 	public GameObject loggedInPanel;
 	public GameObject postChirpsPanel;
     public GameObject followingPanel;
+    public GameObject followersPanel;
+    public GameObject homeChirpsPanel;
     public GameObject recentChirpsPanel;
+    public GameObject myChirpsPanel;
 
     public InputField newUsername;
 
@@ -42,7 +45,10 @@ public class MainMenuGUI : MonoBehaviour {
 		loggedInPanel.SetActive(false);
 		postChirpsPanel.SetActive(false);
         followingPanel.SetActive(false);
+        followersPanel.SetActive(false);
+        homeChirpsPanel.SetActive(false);
         recentChirpsPanel.SetActive(true);
+        myChirpsPanel.SetActive(false);
 	}
 	
 	void FixedUpdate () 
@@ -68,13 +74,46 @@ public class MainMenuGUI : MonoBehaviour {
     public void DisplayRecentChirpsPanel()
     {
         followingPanel.SetActive(false);
+        followersPanel.SetActive(false);
+        homeChirpsPanel.SetActive(false);
         recentChirpsPanel.SetActive(true);
+        myChirpsPanel.SetActive(false);
+    }
+
+    public void DisplayHomeChirpsPanel()
+    {
+        followingPanel.SetActive(false);
+        followersPanel.SetActive(false);
+        homeChirpsPanel.SetActive(true);
+        recentChirpsPanel.SetActive(false);
+        myChirpsPanel.SetActive(false);
+    }
+
+    public void DisplayMyChirpsPanel()
+    {
+        followingPanel.SetActive(false);
+        followersPanel.SetActive(false);
+        homeChirpsPanel.SetActive(false);
+        recentChirpsPanel.SetActive(false);
+        myChirpsPanel.SetActive(true);
     }
 
     public void DisplayFollowingPanel()
     {
         followingPanel.SetActive(true);
+        followersPanel.SetActive(false);
         recentChirpsPanel.SetActive(false);
+        homeChirpsPanel.SetActive(false);
+        myChirpsPanel.SetActive(false);
+    }
+
+    public void DisplayFollowersPanel()
+    {
+        followersPanel.SetActive(true);
+        followingPanel.SetActive(false);
+        homeChirpsPanel.SetActive(false);
+        recentChirpsPanel.SetActive(false);
+        myChirpsPanel.SetActive(false);
     }
 
 	public void DisplayLoginPanel()
@@ -89,11 +128,23 @@ public class MainMenuGUI : MonoBehaviour {
 
 	public void DisplayLoggedInPanel()
 	{
-		currentUsername.text = "@" + newUsername.text;
+		currentUsername.text = "@" + oldUsername.text;
 		loggedInPanel.SetActive(true);
 		postChirpsPanel.SetActive(true);
-		signUpPanel.SetActive(false);
+        recentChirpsPanel.SetActive(false);
+        homeChirpsPanel.SetActive(true);
+		loginPanel.SetActive(false);
 	}
+
+    public void DisplayNewUserLoggedInPanel()
+    {
+        currentUsername.text = "@" + newUsername.text;
+        loggedInPanel.SetActive(true);
+        postChirpsPanel.SetActive(true);
+        recentChirpsPanel.SetActive(false);
+        homeChirpsPanel.SetActive(true);
+        signUpPanel.SetActive(false);
+    }
 
 	public void CancelLogin()
 	{
