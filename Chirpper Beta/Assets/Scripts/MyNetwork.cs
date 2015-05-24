@@ -24,10 +24,16 @@ public class MyNetwork : MonoBehaviour {
 	
 	public AudioSource source;
 
+    GameObject menuGUI;
+    MainMenuGUI menu;
+
 	void Start () 
     {
 		source = GetComponent<AudioSource>();
 		test =  GameObject.Find("Text").GetComponent<Text>();
+
+        menuGUI = GameObject.FindGameObjectWithTag("Menu");
+        menu = menuGUI.GetComponent<MainMenuGUI>();
 	}
 	
 	IEnumerator followUser() {
@@ -241,14 +247,15 @@ public class MyNetwork : MonoBehaviour {
             {
                 Debug.Log("Login Failed!");
                 // Display an error message
-                MainMenuGUI.setResult("loginFalse");
+                menu.DisplayLoginFailedPanel();
             }
             else 
             {
                 Debug.Log("Login Successful!");
+
                 // Collect info to display on user profile page
-                MainMenuGUI.SetUserInfo(words[0], words[1], words[2]);
-                MainMenuGUI.setResult("loginTrue");
+                menu.SetUserInfo(words[0], words[1], words[2]);
+                menu.DisplayLoggedInPanel();
             }
 
 

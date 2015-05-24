@@ -26,10 +26,6 @@ public class MainMenuGUI : MonoBehaviour {
     public Text currentFollowersText;
     public Text currentFollowingText;
 
-    static string currentChirps;
-    static string currentFollowers;
-    static string currentFollowing;
-
 	public GameObject meowingSFX;
 	public Button playButton;
 	public Sprite pauseSprite;
@@ -63,45 +59,23 @@ public class MainMenuGUI : MonoBehaviour {
         myNetwork = networkObject.GetComponent<MyNetwork>();
 	}
 	
-	void FixedUpdate () 
+	void Update () 
     {
-        currentFollowingText.text = currentFollowing;
-        currentFollowersText.text = currentFollowers;
-        currentChirpsText.text = currentChirps;
 
-        // If the user has successfully logged in
-        if (result == "loginTrue")
-        {
-            DisplayLoggedInPanel();
-            result = "";
-        }
-        // If the user has failed to log in
-        else if (result == "loginFalse")
-        {
-            DisplayLoginFailedPanel();
-            result = "";
-        }
 	}
 
-    public static void setResult(string newResult)
+    public void SetUserInfo(string following, string followers, string chirps)
     {
-        result = newResult;
-    }
-
-    public static void SetUserInfo(string following, string followers, string chirps)
-    {
-        currentFollowing = following;
-        currentFollowers = followers;
-        currentChirps = chirps;
+        currentFollowingText.text = following;
+        currentFollowersText.text = followers;
+        currentChirpsText.text = chirps;
     }
 
     public void LoginUser()
     {
         Debug.Log("Trying to login...");
         StartCoroutine (myNetwork.login(oldUsername.text.ToString(), oldPassword.text.ToString()));
-        //MyNetwork.login(oldUsername.text.ToString(), oldPassword.text.ToString());
-        //Debug.Log("TEST 2");
-        //currentUsername.text = newUsername.text;
+        currentUsername.text = newUsername.text;
     }
 
     public void DisplayLoginFailedPanel()
