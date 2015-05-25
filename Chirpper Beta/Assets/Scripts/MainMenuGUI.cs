@@ -15,7 +15,14 @@ public class MainMenuGUI : MonoBehaviour {
     public GameObject recentChirpsPanel;
     public GameObject myChirpsPanel;
     public GameObject loginFailedPanel;
+    public GameObject createUsernamePanel;
+    public GameObject newAccountFailedPanel;
+    public GameObject newUsernameFailedPanel;
+    public GameObject passwordMismatchPanel;
 
+    public InputField newEmailAddress;
+    public InputField newPassword;
+    public InputField newPasswordConfirm;
     public InputField newUsername;
 
     public InputField oldUsername;
@@ -25,6 +32,8 @@ public class MainMenuGUI : MonoBehaviour {
     public Text currentChirpsText;
     public Text currentFollowersText;
     public Text currentFollowingText;
+
+    public Text createNewUsername;
 
 	public GameObject meowingSFX;
 	public Button playButton;
@@ -54,6 +63,10 @@ public class MainMenuGUI : MonoBehaviour {
         recentChirpsPanel.SetActive(true);
         myChirpsPanel.SetActive(false);
         loginFailedPanel.SetActive(false);
+        createUsernamePanel.SetActive(false);
+        newUsernameFailedPanel.SetActive(false);
+        newAccountFailedPanel.SetActive(false);
+        passwordMismatchPanel.SetActive(false);
 
         networkObject = GameObject.FindGameObjectWithTag("Network");
         myNetwork = networkObject.GetComponent<MyNetwork>();
@@ -61,7 +74,7 @@ public class MainMenuGUI : MonoBehaviour {
 	
 	void Update () 
     {
-
+        createNewUsername.text = "@" + newUsername.text;
 	}
 
     public void SetUserInfo(string following, string followers, string chirps)
@@ -76,6 +89,56 @@ public class MainMenuGUI : MonoBehaviour {
         Debug.Log("Trying to login...");
         StartCoroutine (myNetwork.login(oldUsername.text.ToString(), oldPassword.text.ToString()));
         currentUsername.text = newUsername.text;
+    }
+
+    public void DisplayPasswordMismatchPanel()
+    {
+        signUpPanel.SetActive(false);
+        passwordMismatchPanel.SetActive(true);
+    }
+
+    public void DisplayNewAccountFailedPanel()
+    {
+        signUpPanel.SetActive(false);
+        newAccountFailedPanel.SetActive(true);
+    }
+
+    public void DisplayNewUsernameFailedPanel()
+    {
+        createUsernamePanel.SetActive(false);
+        newUsernameFailedPanel.SetActive(true);
+    }
+
+    public void DisplayCreateUsernamePanel()
+    {
+        createUsernamePanel.SetActive(true);
+        signUpPanel.SetActive(false);
+        newUsernameFailedPanel.SetActive(false);
+    }
+
+    public void CheckPasswords()
+    {
+        Debug.Log("Confirming that passwords match...");
+        if (newPassword.text != newPasswordConfirm.text)
+        {
+            DisplayPasswordMismatchPanel();
+        }
+        else
+        {
+            CreateAccount();
+        }
+    }
+
+    public void CreateAccount()
+    {
+        Debug.Log("Trying to create new account...");
+        StartCoroutine(myNetwork.createAccount(newEmailAddress.text.ToString(), newPassword.text.ToString()));
+    }
+
+    public void CreateUsername()
+    {
+        Debug.Log("Trying to create new username...");
+        StartCoroutine(myNetwork.createUsername(newUsername.text.ToString()));
     }
 
     public void DisplayLoginFailedPanel()
@@ -138,11 +201,14 @@ public class MainMenuGUI : MonoBehaviour {
 	{
 		loginPanel.SetActive(true);
         loginFailedPanel.SetActive(false);
+        passwordMismatchPanel.SetActive(false);
 	}
 
 	public void DisplaySignUpPanel()
 	{
 		signUpPanel.SetActive(true);
+        newAccountFailedPanel.SetActive(false);
+        passwordMismatchPanel.SetActive(false);
 	}
 
 	public void DisplayLoggedInPanel()
@@ -163,6 +229,7 @@ public class MainMenuGUI : MonoBehaviour {
         recentChirpsPanel.SetActive(false);
         homeChirpsPanel.SetActive(true);
         signUpPanel.SetActive(false);
+        createUsernamePanel.SetActive(false);
     }
 
 	public void CancelLogin()

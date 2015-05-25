@@ -83,7 +83,7 @@ public class MyNetwork : MonoBehaviour {
 		}
 	}
 
-	IEnumerator signUp() {
+	/*IEnumerator signUp() {
 		WWWForm form = new WWWForm();
 		form.AddField( "signUp", "true" );	
 		form.AddField( "username", username );
@@ -104,7 +104,105 @@ public class MyNetwork : MonoBehaviour {
 			print(download.text);
 			test.text = download.text;	
 		}
-	}
+	}*/
+
+    public IEnumerator createAccount(string newEmail, string newPassword)
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("createAccount", "true");
+        form.AddField("email", newEmail);
+        form.AddField("password", newPassword);
+      
+        WWW download = new WWW(url, form);
+
+        yield return download;
+
+        if (!string.IsNullOrEmpty(download.error))
+        {
+            Debug.Log("Error downloading: " + download.error);
+        }
+        else
+        {
+            //gets results and stores them into string array split with delimiter \\
+            string[] words = download.text.Split(delim, System.StringSplitOptions.None);
+            for (int i = 0; i < words.Length; i++)
+            {
+                //print(i + ": " + words[i]);
+            }
+
+            Debug.Log("Checking result...");
+
+            if (words[0] == "false")
+            {
+                Debug.Log("Failed to create a new account!");
+
+                // Display an error message
+                menu.DisplayNewAccountFailedPanel();
+            }
+            else
+            {
+                Debug.Log("Successfully created a new account!");
+
+                // Ask the user to create a new username
+                menu.DisplayCreateUsernamePanel();
+            }
+
+
+            if (download.responseHeaders.ContainsKey("SET-COOKIE"))
+            {
+                cookie = download.responseHeaders["SET-COOKIE"];
+            }
+        }
+    }
+
+    public IEnumerator createUsername(string newUsername)
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("createUsername", "true");
+        form.AddField("username", newUsername);
+
+        WWW download = new WWW(url, form);
+
+        yield return download;
+
+        if (!string.IsNullOrEmpty(download.error))
+        {
+            Debug.Log("Error downloading: " + download.error);
+        }
+        else
+        {
+            //gets results and stores them into string array split with delimiter \\
+            string[] words = download.text.Split(delim, System.StringSplitOptions.None);
+            for (int i = 0; i < words.Length; i++)
+            {
+                //print(i + ": " + words[i]);
+            }
+
+            Debug.Log("Checking result...");
+
+            if (words[0] == "false")
+            {
+                Debug.Log("Failed to create a new username!");
+
+                // Display an error message
+                menu.DisplayNewUsernameFailedPanel();
+            }
+            else
+            {
+                Debug.Log("Successfully created a new username!");
+
+                // Ask the user to create a new username
+                menu.SetUserInfo("0", "0", "0");
+                menu.DisplayNewUserLoggedInPanel();
+            }
+
+
+            if (download.responseHeaders.ContainsKey("SET-COOKIE"))
+            {
+                cookie = download.responseHeaders["SET-COOKIE"];
+            }
+        }
+    }
 
 
 	IEnumerator getChirps(string username) {
