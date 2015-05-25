@@ -22,11 +22,32 @@ deleteChirp(string username, string id)
 sendChirp(string username, string title, BinaryData audioFile)
 	- Current number of posts by the username
 
+==================================================================
+============================= DELETE =============================
 signUp(string username, string password, string email, string name)
 	if successful:
 		- "true"
 	if unsuccessful:
 		- "false"
+============================= DELETE =============================
+==================================================================
+
+
+==================================================================
+============================== NEW ===============================
+createAccount(string email, string password)
+	if successful = email did not exist:
+		- "true"
+	if unsuccessful = email already exists:
+		- "false"
+
+createUsername(string username)  // Can add profile image later if we have time
+	if successful = username did not exist:
+		- "true"
+	if unsuccessful = username already exists:
+		- "false"
+============================== NEW ===============================
+==================================================================
 
 getUsersChirps(string username)
 	- Up to 8 chirps (id, title)
