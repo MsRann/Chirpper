@@ -19,6 +19,7 @@ public class MainMenuGUI : MonoBehaviour {
     public GameObject newAccountFailedPanel;
     public GameObject newUsernameFailedPanel;
     public GameObject passwordMismatchPanel;
+    public GameObject addAccountFailedPanel;
 
     public InputField newEmailAddress;
     public InputField newPassword;
@@ -27,6 +28,8 @@ public class MainMenuGUI : MonoBehaviour {
 
     public InputField oldUsername;
     public InputField oldPassword;
+
+    public InputField chirpTitle;
 
     public Text currentUsername;
     public Text currentChirpsText;
@@ -67,6 +70,7 @@ public class MainMenuGUI : MonoBehaviour {
         newUsernameFailedPanel.SetActive(false);
         newAccountFailedPanel.SetActive(false);
         passwordMismatchPanel.SetActive(false);
+        addAccountFailedPanel.SetActive(false);
 
         networkObject = GameObject.FindGameObjectWithTag("Network");
         myNetwork = networkObject.GetComponent<MyNetwork>();
@@ -77,11 +81,19 @@ public class MainMenuGUI : MonoBehaviour {
         createNewUsername.text = "@" + newUsername.text;
 	}
 
+    public string getChirpTitle()
+    {
+        return chirpTitle.text.ToString();
+    }
+
     public void SetUserInfo(string following, string followers, string chirps)
     {
-        currentFollowingText.text = following;
-        currentFollowersText.text = followers;
-        currentChirpsText.text = chirps;
+        if (following != "nc")
+            currentFollowingText.text = following;
+        if (followers != "nc")
+            currentFollowersText.text = followers;
+        if (chirps != "nc")
+            currentChirpsText.text = chirps;
     }
 
     public void LoginUser()
@@ -89,6 +101,11 @@ public class MainMenuGUI : MonoBehaviour {
         Debug.Log("Trying to login...");
         StartCoroutine (myNetwork.login(oldUsername.text.ToString(), oldPassword.text.ToString()));
         currentUsername.text = newUsername.text;
+    }
+
+    public void DisplayAddAccountFailedPanel()
+    {
+        addAccountFailedPanel.SetActive(false);
     }
 
     public void DisplayPasswordMismatchPanel()
@@ -209,6 +226,7 @@ public class MainMenuGUI : MonoBehaviour {
 		signUpPanel.SetActive(true);
         newAccountFailedPanel.SetActive(false);
         passwordMismatchPanel.SetActive(false);
+        addAccountFailedPanel.SetActive(false);
 	}
 
 	public void DisplayLoggedInPanel()

@@ -11,8 +11,17 @@ public class AudioRecorder : MonoBehaviour {
 	AudioClip myAudioClip;
 	AudioSource audio;
 
-    GameObject menu;
+    GameObject menuGUI;
     CreatePost newPost;
+    MainMenuGUI menu;
+
+    GameObject networkObject;
+    MyNetwork myNetwork;
+
+    public Sprite stopRecordingSprite;
+    public Button stopRecordingButton;
+
+    int startedRecording = 0;
 
     bool isRecording;
 
@@ -24,8 +33,12 @@ public class AudioRecorder : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-        menu = GameObject.FindGameObjectWithTag("Menu");
-        newPost = menu.GetComponent<CreatePost>();
+        menuGUI = GameObject.FindGameObjectWithTag("Menu");
+        newPost = menuGUI.GetComponent<CreatePost>();
+        menu = menuGUI.GetComponent<MainMenuGUI>();
+
+        networkObject = GameObject.FindGameObjectWithTag("Network");
+        myNetwork = networkObject.GetComponent<MyNetwork>();
 
         isRecording = false;
 	}
@@ -37,14 +50,37 @@ public class AudioRecorder : MonoBehaviour {
 
 	public void RecordAudio()
 	{
-        isRecording = true;
-		myAudioClip = Microphone.Start ( null, false, 10, 44100 );
+        startedRecording++;
+
+        if (startedRecording == 1)
+        {
+            isRecording = true;
+            newPost.resetTimer();
+            newPost.setPauseTimer(false);
+            myAudioClip = Microphone.Start(null, false, 10, 44100);
+            stopRecordingButton.image.overrideSprite = stopRecordingSprite;
+        }
+        else if (startedRecording == 2)
+        {
+            newPost.setPauseTimer(true);
+            stopRecordingButton.image.overrideSprite = null;
+            startedRecording = 0;
+        }
+        
 	}
 
-	public void SaveAudio()
+	public void PostAudio()
 	{
         isRecording = false;
 		SavWav.Save("myChirp", myAudioClip);
+
+        float[] samples = new float[myAudioClip.samples * myAudioClip.channels];
+        myAudioClip.GetData(samples, 0);
+        // create a byte array and copy the floats into it...
+        byte[] byteArray = new byte[samples.Length * 4];
+        Buffer.BlockCopy(samples, 0, byteArray, 0, byteArray.Length);
+
+        StartCoroutine(myNetwork.sendChirp(menu.getChirpTitle(), byteArray));
 	}
 
 	public void PlayAudio()

@@ -9,14 +9,11 @@ using System.Collections.Generic;
 public class MyNetwork : MonoBehaviour {
 	
 	static string url = "https://chirpper.herokuapp.com/";
-	string username = "John";
-    string password = "Doe";
-    string passwordConfirm="";
-    string name="name";
-    string email="email";
+	string username;
+    string password;
+    string email;
     static string cookie = "";
     string searchField="Search!";
-	string chirpTitle = "Chirp Something!";
     string follow="Enter a User To Follow!";
 	Text test;
 	bool signedUp = false;
@@ -143,6 +140,9 @@ public class MyNetwork : MonoBehaviour {
             {
                 Debug.Log("Successfully created a new account!");
 
+                email = newEmail;
+                password = newPassword;
+
                 // Ask the user to create a new username
                 menu.DisplayCreateUsernamePanel();
             }
@@ -190,6 +190,63 @@ public class MyNetwork : MonoBehaviour {
             else
             {
                 Debug.Log("Successfully created a new username!");
+
+                username = newUsername;
+
+                // Ask the user to create a new username
+                StartCoroutine(addAccount());
+            }
+
+
+            if (download.responseHeaders.ContainsKey("SET-COOKIE"))
+            {
+                cookie = download.responseHeaders["SET-COOKIE"];
+            }
+        }
+    }
+
+    public IEnumerator addAccount()
+    {
+        Debug.Log("Adding account...");
+        Debug.Log("Email: " + email);
+        Debug.Log("Username: " + username);
+        Debug.Log("Password: " + password);
+
+        WWWForm form = new WWWForm();
+        form.AddField("addAccount", "true");
+        form.AddField("email", email);
+        form.AddField("username", username);
+        form.AddField("password", password);
+
+        WWW download = new WWW(url, form);
+
+        yield return download;
+
+        if (!string.IsNullOrEmpty(download.error))
+        {
+            Debug.Log("Error downloading: " + download.error);
+        }
+        else
+        {
+            //gets results and stores them into string array split with delimiter \\
+            string[] words = download.text.Split(delim, System.StringSplitOptions.None);
+            for (int i = 0; i < words.Length; i++)
+            {
+                //print(i + ": " + words[i]);
+            }
+
+            Debug.Log("Adding new account to the Chirpper database...");
+
+            if (words[0] == "false")
+            {
+                Debug.Log("Failed to add a new account!");
+
+                // Display an error message
+                menu.DisplayAddAccountFailedPanel();
+            }
+            else
+            {
+                Debug.Log("Successfully added a new account!");
 
                 // Ask the user to create a new username
                 menu.SetUserInfo("0", "0", "0");
@@ -292,27 +349,58 @@ public class MyNetwork : MonoBehaviour {
 		}
 	}
 	
-	IEnumerator sendChirp() {
+	public IEnumerator sendChirp(string chirpTitle, byte[] toSend) {
 		WWWForm form = new WWWForm();
-		FileStream fs = new FileStream ("assets\\myChirp.wav", FileMode.Open, FileAccess.Read,FileShare.Read);
-		BinaryReader reader = new BinaryReader(fs);
-		byte[] toSend = new byte[fs.Length];
-		fs.Read(toSend,0,System.Convert.ToInt32(fs.Length));
-		fs.Close ();
+		//FileStream fs = new FileStream ("assets\\myChirp.wav", FileMode.Open, FileAccess.Read,FileShare.Read);
+		//BinaryReader reader = new BinaryReader(fs);
+		//byte[] toSend = new byte[fs.Length];
+		//fs.Read(toSend,0,System.Convert.ToInt32(fs.Length));
+		//fs.Close ();
 		
-		form.AddField( "username", username );
-		form.AddField( "chirpTitle", chirpTitle );
-		
+		form.AddField( "username",  menu.currentUsername.text.ToString());
+		form.AddField( "chirpTitle", chirpTitle);
+
+        //byte[] toSend = new byte[fs.Length];
 		form.AddBinaryData ("chirpData", toSend);
 		WWW download =  new WWW( url, form);
 		yield return download;
-		
-		if(!string.IsNullOrEmpty(download.error)) {
-			print( "Error downloading: " + download.error );
-		} else {
-			print(download.text);
-			test.text = download.text;
-		}
+
+        if (!string.IsNullOrEmpty(download.error))
+        {
+            Debug.Log("Error downloading: " + download.error);
+        }
+        else
+        {
+            //gets results and stores them into string array split with delimiter \\
+            string[] words = download.text.Split(delim, System.StringSplitOptions.None);
+            for (int i = 0; i < words.Length; i++)
+            {
+                //print(i + ": " + words[i]);
+            }
+
+            Debug.Log("Sending new chirp to the Chirpper database...");
+
+            if (words[0] == "false")
+            {
+                Debug.Log("Failed to send new chirp!");
+
+                // Display an error message
+                //menu.DisplayAddAccountFailedPanel();
+            }
+            else
+            {
+                Debug.Log("Successfully sent new chirp!");
+                Debug.Log("Current number of chirps: " + words[0]);
+
+                menu.SetUserInfo("nc", "nc", words[0]);
+            }
+
+
+            if (download.responseHeaders.ContainsKey("SET-COOKIE"))
+            {
+                cookie = download.responseHeaders["SET-COOKIE"];
+            }
+        }
 	}
 	
 	public IEnumerator login(string oldUsername, string oldPassword) {

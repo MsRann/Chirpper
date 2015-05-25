@@ -10,6 +10,7 @@ public class CreatePost : MonoBehaviour {
 
     public Text timerText;
     float timer;
+    bool pauseTimer = false;
 
     public void setTimer(float time)
     {
@@ -25,13 +26,24 @@ public class CreatePost : MonoBehaviour {
         timer = 0;
 
 	}
+
+    public void setPauseTimer(bool value)
+    {
+        pauseTimer = value;
+    }
+
+    public void resetTimer()
+    {
+        timer = 0;
+    }
 	
 	// Update is called once per frame
 	void Update () {
 
         if (recorder.getIsRecording())
         {
-            timer += Time.deltaTime;
+            if (!pauseTimer)
+                timer += Time.deltaTime;
         }
         else
         {

@@ -46,6 +46,12 @@ createUsername(string username)  // Can add profile image later if we have time
 		- "true"
 	if unsuccessful = username already exists:
 		- "false"
+
+addAccount(string email, string username, string password)
+	if successful:
+		- "true"
+	if unsuccessful:
+		- "false"
 ============================== NEW ===============================
 ==================================================================
 
