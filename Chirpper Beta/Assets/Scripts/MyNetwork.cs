@@ -357,7 +357,7 @@ public class MyNetwork : MonoBehaviour {
 		//fs.Read(toSend,0,System.Convert.ToInt32(fs.Length));
 		//fs.Close ();
 		
-		form.AddField( "username",  menu.currentUsername.text.ToString());
+		form.AddField( "username",  menu.currentUsername.text.ToString().Substring(1));
 		form.AddField( "chirpTitle", chirpTitle);
 
         //byte[] toSend = new byte[fs.Length];
@@ -383,7 +383,6 @@ public class MyNetwork : MonoBehaviour {
             if (words[0] == "false")
             {
                 Debug.Log("Failed to send new chirp!");
-
                 // Display an error message
                 //menu.DisplayAddAccountFailedPanel();
             }

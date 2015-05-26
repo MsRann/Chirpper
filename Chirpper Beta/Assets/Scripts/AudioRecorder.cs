@@ -72,15 +72,15 @@ public class AudioRecorder : MonoBehaviour {
 	public void PostAudio()
 	{
         isRecording = false;
-		SavWav.Save("myChirp", myAudioClip);
+		byte[] toSend = SavWav.Save(myAudioClip);
 
-        float[] samples = new float[myAudioClip.samples * myAudioClip.channels];
-        myAudioClip.GetData(samples, 0);
-        // create a byte array and copy the floats into it...
-        byte[] byteArray = new byte[samples.Length * 4];
-        Buffer.BlockCopy(samples, 0, byteArray, 0, byteArray.Length);
+  //      float[] samples = new float[myAudioClip.samples * myAudioClip.channels];
+//        myAudioClip.GetData(samples, 0);
+//        // create a byte array and copy the floats into it...
+//        byte[] byteArray = new byte[samples.Length * 4];
+//        Buffer.BlockCopy(samples, 0, byteArray, 0, byteArray.Length);
 
-        StartCoroutine(myNetwork.sendChirp(menu.getChirpTitle(), byteArray));
+        StartCoroutine(myNetwork.sendChirp(menu.getChirpTitle(), toSend));
 	}
 
 	public void PlayAudio()

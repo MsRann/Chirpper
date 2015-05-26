@@ -52,6 +52,7 @@ public class MainMenuGUI : MonoBehaviour {
 	// Use this for initialization
 	void Start () 
     {
+		StartCoroutine (getPermissions());
         Screen.showCursor = true;
 
         result = "";
@@ -75,7 +76,17 @@ public class MainMenuGUI : MonoBehaviour {
         networkObject = GameObject.FindGameObjectWithTag("Network");
         myNetwork = networkObject.GetComponent<MyNetwork>();
 	}
+
 	
+	IEnumerator getPermissions(){
+		yield return Application.RequestUserAuthorization (UserAuthorization.Microphone);
+		if (Application.HasUserAuthorization (UserAuthorization.Microphone)) {
+			print("Got Access of Microphone");
+		} else {
+			print("Denied Access of Microphone");
+		}
+	}
+
 	void Update () 
     {
         createNewUsername.text = "@" + newUsername.text;
