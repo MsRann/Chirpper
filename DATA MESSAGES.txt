@@ -19,22 +19,15 @@ unfollowUser(string username, string followUsername)
 deleteChirp(string username, string id)
 	- Current number of posts by the username
 
-sendChirp(string username, string title, BinaryData audioFile)
+============================== EDITED ============================
+==================================================================
+
+sendChirp(string username, string title, BinaryData audioFile, int length)
 	- Current number of posts by the username
 
-==================================================================
-============================= DELETE =============================
-signUp(string username, string password, string email, string name)
-	if successful:
-		- "true"
-	if unsuccessful:
-		- "false"
-============================= DELETE =============================
+============================== EDITED ============================
 ==================================================================
 
-
-==================================================================
-============================== NEW ===============================
 createAccount(string email, string password)
 	if successful = email did not exist:
 		- "true"
@@ -52,18 +45,22 @@ addAccount(string email, string username, string password)
 		- "true"
 	if unsuccessful:
 		- "false"
-============================== NEW ===============================
+
+============================== EDITED ============================
 ==================================================================
 
 getUsersChirps(string username)
-	- Up to 8 chirps (id, title)
+	- Up to 8 chirps (id, title,length,timestamp)
 
 
 getFollowingChirps(string username)
-	- Up to 8 chirps (id, username, title)
+	- Up to 8 chirps (id, username, title,length,timestamp)
 
 getRecentChirps()
-	- Up to 8 chirps (id, username, title)
+	- Up to 8 chirps (id, username, title,length,timestamp)
+
+============================== EDITED ============================
+==================================================================
 
 getFollowers(string username)
 	- Number of followers
