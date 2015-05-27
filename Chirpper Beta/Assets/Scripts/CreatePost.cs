@@ -12,6 +12,7 @@ public class CreatePost : MonoBehaviour {
     public float timer;
     bool pauseTimer = false;
 	float accurateTime;
+	public float length;
 
     public void setTimer(float time)
     {
@@ -31,6 +32,10 @@ public class CreatePost : MonoBehaviour {
     public void setPauseTimer(bool value)
     {
         pauseTimer = value;
+		if (value) {
+			length = timer;
+			SavWav.trimClipToLength (ref recorder.myAudioClip, length);
+		}
     }
 
     public void resetTimer()
@@ -43,8 +48,16 @@ public class CreatePost : MonoBehaviour {
 
         if (recorder.getIsRecording())
         {
-            if (!pauseTimer)
+            if (!pauseTimer){
                 timer += Time.deltaTime;
+
+				if(timer >= recorder.MAX_CHIRP_LENGTH){
+					recorder.setIsRecording(false);
+					setPauseTimer (true);
+
+				}
+			}
+
         }
         else
         {

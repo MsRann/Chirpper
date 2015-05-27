@@ -443,9 +443,13 @@ public class MyNetwork : MonoBehaviour {
 	}
 
 	void Update(){
-//		if (!source.isPlaying && playingButton != null) {
-//			playingButton.image.overrideSprite = null;
-//		}
+		if (playingButton != null) {
+			if (!source.isPlaying) {
+				playingButton.image.overrideSprite = null;
+			} else {
+				playingButton.image.overrideSprite = stopImage;
+			}
+		}
 	}
 	
 	public IEnumerator login(string oldUsername, string oldPassword) {

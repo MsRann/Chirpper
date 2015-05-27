@@ -33,6 +33,20 @@ public static class SavWav {
  
 	const int HEADER_SIZE = 44;
 	public static float test = 0.4f;
+
+	public static void trimClipToLength(ref AudioClip clip, float length){
+		AudioClip ac = clip;
+		float lengthL = ac.length;
+		float samplesL = ac.samples;
+		float samplesPerSec = (float)samplesL/lengthL;
+		Debug.Log("samples: " + ac.samples);
+		float[] samples = new float[(int)(samplesPerSec * length)];
+		ac.GetData(samples,0);
+		
+		clip = AudioClip.Create("RecordedSound",(int)(length*samplesPerSec),1,44100,false,false);
+		clip.SetData(samples,0);
+	}
+
 	public static byte[] Save(AudioClip clip) {
 //		if (!filename.ToLower().EndsWith(".wav")) {
 //			filename += ".wav";
@@ -47,27 +61,14 @@ public static class SavWav {
 		//Directory.CreateDirectory(Path.GetDirectoryName(filepath));
  
 		//using (var fileStream = CreateEmpty(filepath)) {
-
-//			AudioClip ac = clip;
-//			float lengthL = ac.length;
-//			float samplesL = ac.samples;
-//			float samplesPerSec = (float)samplesL/lengthL;
-//			float[] samples = new float[(int)(samplesPerSec * actualTime)];
-//			ac.GetData(samples,0);
-//			
-//			clip = AudioClip.Create("RecordedSound",(int)(actualTime*samplesPerSec),1,44100,false,false);
-//			Debug.Log("actualTime: " + actualTime + " Length now: " + (actualTime * samplesPerSec));
-//			clip.SetData(samples,0);
-
-			//TrimSilence (clip, test);
-
-			byte[] file = ConvertAndWrite(clip);
- 			
-			byte[] header = WriteHeader(clip,file.Length);
-			byte[] final = new byte[header.Length + file.Length];
-			Buffer.BlockCopy(header,0,final,0,header.Length);
-			Buffer.BlockCopy(file,0,final,header.Length,file.Length);
-			return final;
+	
+		byte[] file = ConvertAndWrite(clip);
+		
+		byte[] header = WriteHeader(clip,file.Length);
+		byte[] final = new byte[header.Length + file.Length];
+		Buffer.BlockCopy(header,0,final,0,header.Length);
+		Buffer.BlockCopy(file,0,final,header.Length,file.Length);
+		return final;
 		//}
  
 		return new byte[0]; // TODO: return false if there's a failure saving the file

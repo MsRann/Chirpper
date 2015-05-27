@@ -8,7 +8,8 @@ using System.Text;
 
 public class AudioRecorder : MonoBehaviour {
 
-	AudioClip myAudioClip;
+	public readonly int MAX_CHIRP_LENGTH = 15;
+	public AudioClip myAudioClip;
 	AudioSource audio;
 
     GameObject menuGUI;
@@ -18,17 +19,26 @@ public class AudioRecorder : MonoBehaviour {
     MyNetwork myNetwork;
 
     public Sprite stopRecordingSprite;
-    public Button stopRecordingButton;
 
+	public Button stopRecordingButton;
+	public Button postButton;
 	public Button playButton;
-    int startedRecording = 0;
 
+
+
+    int startedRecording = 0;
+	float length;
     bool isRecording;
 
-    public bool getIsRecording()
-    {
-        return isRecording;
-    }
+	public bool getIsRecording()
+	{
+		return isRecording;
+	}
+
+	public void setIsRecording(bool value)
+	{
+		isRecording = value;
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -40,11 +50,6 @@ public class AudioRecorder : MonoBehaviour {
 		audio = myNetwork.source;
         isRecording = false;
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
 	public void RecordAudio()
 	{
@@ -55,53 +60,72 @@ public class AudioRecorder : MonoBehaviour {
             isRecording = true;
             newPost.resetTimer();
             newPost.setPauseTimer(false);
-            myAudioClip = Microphone.Start(null, false, 10, 44100);
+            myAudioClip = Microphone.Start(null, false, MAX_CHIRP_LENGTH, 44100);
             stopRecordingButton.image.overrideSprite = stopRecordingSprite;
         }
         else if (startedRecording == 2)
         {
+			isRecording = false;
             newPost.setPauseTimer(true);
             stopRecordingButton.image.overrideSprite = null;
             startedRecording = 0;
+
         }
         
 	}
 
 	public void PostAudio()
 	{
+		SavWav.trimClipToLength (ref myAudioClip, newPost.length);
         isRecording = false;
 		byte[] toSend = SavWav.Save(myAudioClip);
+        StartCoroutine(myNetwork.sendChirp(menu.getChirpTitle(), toSend,(int)Math.Round (newPost.length)));
+	}
 
-  //      float[] samples = new float[myAudioClip.samples * myAudioClip.channels];
-//        myAudioClip.GetData(samples, 0);
-//        // create a byte array and copy the floats into it...
-//        byte[] byteArray = new byte[samples.Length * 4];
-//        Buffer.BlockCopy(samples, 0, byteArray, 0, byteArray.Length);
 
-        StartCoroutine(myNetwork.sendChirp(menu.getChirpTitle(), toSend,(int)newPost.timer));
+	public void Update(){
+
+		//disallow users to play or post their chirp until they're done recording
+		if (myAudioClip == null || isRecording) {
+			playButton.gameObject.SetActive (false);
+			postButton.gameObject.SetActive (false);
+		
+		} else {
+			playButton.gameObject.SetActive (true);
+			postButton.gameObject.SetActive (true);
+		
+		}
+
+		//to change record button when max length of chirp achieved
+		if (isRecording) {
+			stopRecordingButton.image.overrideSprite = stopRecordingSprite;
+		}else{
+			stopRecordingButton.image.overrideSprite = null;
+		}
+
+		//to change play button logo when its done playing
+		if (!audio.isPlaying){
+			playButton.image.overrideSprite = null;
+		}else{
+			playButton.image.overrideSprite = stopRecordingSprite;
+		}
 	}
 
 	public void PlayAudio()
 	{
-		byte[] toSend = SavWav.Save(myAudioClip);
+
         isRecording = false;
 		//audio.PlayOneShot(myAudioClip);
 
-        newPost.setTimer(myAudioClip.length);
+        //newPost.setTimer(myAudioClip.length);
 
-        audio.clip = myAudioClip;
-        //audio.Play();
-		if (!audio.isPlaying)
-		{
+		audio.clip = myAudioClip;
+
+		if (!audio.isPlaying){
 			audio.Play();
-			print("playing");
-			playButton.image.overrideSprite = stopRecordingSprite;
+		}else{
+			audio.Stop();
 		}
-		else
-		{
-			print("paused");
-			audio.Pause();
-			playButton.image.overrideSprite = null;
-		}
+
 	}
 }
