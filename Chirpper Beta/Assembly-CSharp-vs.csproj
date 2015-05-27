@@ -47,10 +47,12 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\AudioRecorder.cs" />
+     <Compile Include="Assets\Scripts\ChirpInfo.cs" />
      <Compile Include="Assets\Scripts\CreatePost.cs" />
      <Compile Include="Assets\Scripts\MainMenuGUI.cs" />
      <Compile Include="Assets\Scripts\MyNetwork.cs" />
      <Compile Include="Assets\Scripts\SavWav.cs" />
+     <Compile Include="Assets\Scripts\TestScript.cs" />
      <Compile Include="Assets\Skybox\Fantasy Skybox FREE\Scripts\FSPlayer.cs" />
      <None Include="Assets\Skybox\Fantasy Skybox FREE\Readme\Readme.txt" />
  <Reference Include="Assembly-UnityScript-firstpass">

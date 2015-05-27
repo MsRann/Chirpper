@@ -9,8 +9,9 @@ public class CreatePost : MonoBehaviour {
     AudioRecorder recorder;
 
     public Text timerText;
-    float timer;
+    public float timer;
     bool pauseTimer = false;
+	float accurateTime;
 
     public void setTimer(float time)
     {

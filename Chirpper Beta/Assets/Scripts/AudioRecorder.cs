@@ -15,12 +15,12 @@ public class AudioRecorder : MonoBehaviour {
     CreatePost newPost;
     MainMenuGUI menu;
 
-    GameObject networkObject;
     MyNetwork myNetwork;
 
     public Sprite stopRecordingSprite;
     public Button stopRecordingButton;
 
+	public Button playButton;
     int startedRecording = 0;
 
     bool isRecording;
@@ -32,14 +32,12 @@ public class AudioRecorder : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
         menuGUI = GameObject.FindGameObjectWithTag("Menu");
         newPost = menuGUI.GetComponent<CreatePost>();
         menu = menuGUI.GetComponent<MainMenuGUI>();
-
-        networkObject = GameObject.FindGameObjectWithTag("Network");
-        myNetwork = networkObject.GetComponent<MyNetwork>();
-
+		
+		myNetwork =  GameObject.FindGameObjectWithTag("Network").GetComponent<MyNetwork>();
+		audio = myNetwork.source;
         isRecording = false;
 	}
 	
@@ -80,27 +78,30 @@ public class AudioRecorder : MonoBehaviour {
 //        byte[] byteArray = new byte[samples.Length * 4];
 //        Buffer.BlockCopy(samples, 0, byteArray, 0, byteArray.Length);
 
-        StartCoroutine(myNetwork.sendChirp(menu.getChirpTitle(), toSend));
+        StartCoroutine(myNetwork.sendChirp(menu.getChirpTitle(), toSend,(int)newPost.timer));
 	}
 
 	public void PlayAudio()
 	{
+		byte[] toSend = SavWav.Save(myAudioClip);
         isRecording = false;
 		//audio.PlayOneShot(myAudioClip);
 
         newPost.setTimer(myAudioClip.length);
 
         audio.clip = myAudioClip;
-        audio.Play();
-		/*if (!audio.isPlaying)
+        //audio.Play();
+		if (!audio.isPlaying)
 		{
 			audio.Play();
-			//playButton.image.overrideSprite = pauseSprite;
+			print("playing");
+			playButton.image.overrideSprite = stopRecordingSprite;
 		}
 		else
 		{
+			print("paused");
 			audio.Pause();
-			//playButton.image.overrideSprite = null;
-		}*/
+			playButton.image.overrideSprite = null;
+		}
 	}
 }

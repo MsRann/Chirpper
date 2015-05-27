@@ -4,6 +4,7 @@ using System.Collections;
 using System.Linq;
 using System.IO;
 using System.Net;
+using System;
 using System.Collections.Generic;
 
 public class MyNetwork : MonoBehaviour {
@@ -18,15 +19,18 @@ public class MyNetwork : MonoBehaviour {
 	Text test;
 	bool signedUp = false;
 	static string[] delim = {"\\"};
-	
+	public Button playingButton;
+	public Sprite stopImage;
 	public AudioSource source;
 
     GameObject menuGUI;
     MainMenuGUI menu;
 
+	public GameObject chirpPrefab;
+
 	void Start () 
     {
-		source = GetComponent<AudioSource>();
+		source = gameObject.AddComponent<AudioSource> ();
 		test =  GameObject.Find("Text").GetComponent<Text>();
 
         menuGUI = GameObject.FindGameObjectWithTag("Menu");
@@ -316,20 +320,55 @@ public class MyNetwork : MonoBehaviour {
 		}
 	}
 
-	IEnumerator getFollowingChirps() {
+	public IEnumerator getFollowingChirps() {
+		print ("Updating Home Chirps Feed");
 		WWWForm form = new WWWForm();
-		//	Dictionary<string,string> headers = form.headers;
-		//	headers ["COOKIE"] = cookie;
 		form.AddField( "getFollowingChirps", username );
 		WWW download = new WWW( url, form );
-		//WWW download =  new WWW( url, form);
 		yield return download;
 		
 		if(!string.IsNullOrEmpty(download.error)) {
 			print( "Error downloading: " + download.error );
 		} else {
-			print(download.text);
-			test.text = download.text;
+
+			GameObject recentChirps = GameObject.Find("Home Chirps Feed Panel");
+			//gets results and stores them into string array split with delimiter \\
+			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
+			//get 3 recent chirps and add them to the panel
+
+			//Removes previous old chirps
+			if(recentChirps.transform.Find("FollowingChirp0")!= null){
+				Destroy(recentChirps.transform.Find("FollowingChirp0").gameObject);
+				Destroy(recentChirps.transform.Find("FollowingChirp5").gameObject);
+				Destroy(recentChirps.transform.Find("FollowingChirp10").gameObject);
+			}
+			//loop a max of 3 times
+			int loop = words.Length >= 15? 15: words.Length;
+			for (int i = 0; i < loop; i+=5){
+				Vector3 newPos = recentChirps.transform.position;
+				newPos.y = 2 - ((i/5)*75);
+				GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
+				temp.transform.position = newPos;
+				temp.transform.SetParent (recentChirps.transform,false);
+				temp.name = "FollowingChirp" + i;
+				ChirpInfo ci = temp.GetComponent<ChirpInfo>();
+				
+				DateTime dt = Convert.ToDateTime(words[i+4]);
+				if ((dt - DateTime.Now).TotalDays >= 1){
+					ci.timestamp.text = dt.Month + " " + dt.Day ;
+				}else if ((dt - DateTime.Now).TotalHours > 0){
+					ci.timestamp.text = (int)(Math.Round ((dt - DateTime.Now).TotalHours)) + " hr ago";
+				}else{
+					ci.timestamp.text = (int)(Math.Round ((dt - DateTime.Now).TotalMinutes)) + " min ago";
+				}
+				
+				ci.id = int.Parse(words[i]);
+				ci.username.text = words[i+1];
+				ci.title.text = words[i+2];
+				ci.timer.text = "00:";
+				ci.timer.text += int.Parse (words[i+3]) < 10? "0" + words[i+3]:words[i+3];
+				ci.addButtonFunction();
+			}
 		}
 	}
 	
@@ -349,7 +388,7 @@ public class MyNetwork : MonoBehaviour {
 		}
 	}
 	
-	public IEnumerator sendChirp(string chirpTitle, byte[] toSend) {
+	public IEnumerator sendChirp(string chirpTitle, byte[] toSend, int length) {
 		WWWForm form = new WWWForm();
 		//FileStream fs = new FileStream ("assets\\myChirp.wav", FileMode.Open, FileAccess.Read,FileShare.Read);
 		//BinaryReader reader = new BinaryReader(fs);
@@ -359,6 +398,7 @@ public class MyNetwork : MonoBehaviour {
 		
 		form.AddField( "username",  menu.currentUsername.text.ToString().Substring(1));
 		form.AddField( "chirpTitle", chirpTitle);
+		form.AddField ("length", length);
 
         //byte[] toSend = new byte[fs.Length];
 		form.AddBinaryData ("chirpData", toSend);
@@ -401,8 +441,15 @@ public class MyNetwork : MonoBehaviour {
             }
         }
 	}
+
+	void Update(){
+//		if (!source.isPlaying && playingButton != null) {
+//			playingButton.image.overrideSprite = null;
+//		}
+	}
 	
 	public IEnumerator login(string oldUsername, string oldPassword) {
+		username = oldUsername;
         WWWForm form = new WWWForm();
 		//form.AddBinaryData("binary", new byte[1]);
         form.AddField("login", oldUsername);
@@ -437,7 +484,7 @@ public class MyNetwork : MonoBehaviour {
             else 
             {
                 Debug.Log("Login Successful!");
-
+				StartCoroutine(getFollowingChirps());
                 // Collect info to display on user profile page
                 menu.SetUserInfo(words[0], words[1], words[2]);
                 menu.DisplayLoggedInPanel();
@@ -450,7 +497,8 @@ public class MyNetwork : MonoBehaviour {
 		}
 	}
 
-	IEnumerator getRecentChirps() {
+	public IEnumerator getRecentChirps() {
+		print("Updating Recent Chirps Feed");
 		WWWForm form = new WWWForm();
 		form.AddField( "getRecentChirps", "" );
 		WWW download = new WWW( url, form );
@@ -459,28 +507,79 @@ public class MyNetwork : MonoBehaviour {
 		if(!string.IsNullOrEmpty(download.error)) {
 			print( "Error downloading: " + download.error );
 		} else {
-			print(download.text);
+			GameObject recentChirps = GameObject.Find("Recent Chirps Feed Panel");
+
+			//print(download.text);
 			//gets results and stores them into string array split with delimiter \\
 			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
-			for (int i = 0; i < words.Length; i ++){
-				print(i + ": " + words[i]);
+
+			//Removes previous old chirps
+			if(recentChirps.transform.Find("Chirp0")!= null){
+				Destroy(recentChirps.transform.Find("Chirp0").gameObject);
+				Destroy(recentChirps.transform.Find("Chirp5").gameObject);
+				Destroy(recentChirps.transform.Find("Chirp10").gameObject);
+			}
+			//get 3 recent chirps and add them to the panel
+			for (int i = 0; i < 15; i+=5){
+				Vector3 newPos = recentChirps.transform.position;
+				newPos.y = 2 - ((i/5)*75);
+				GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
+				temp.transform.position = newPos;
+				temp.transform.SetParent (recentChirps.transform,false);
+				temp.name = "Chirp" +i;
+
+				ChirpInfo ci = temp.GetComponent<ChirpInfo>();
+
+				DateTime dt = Convert.ToDateTime(words[i+4]);
+				if ((dt - DateTime.Now).TotalDays >= 1){
+					ci.timestamp.text = dt.Month + " " + dt.Day ;
+				}else if ((dt - DateTime.Now).TotalHours > 0){
+					ci.timestamp.text = (int)(Math.Round ((dt - DateTime.Now).TotalHours)) + " hr ago";
+				}else{
+					ci.timestamp.text = (int)(Math.Round ((dt - DateTime.Now).TotalMinutes)) + " min ago";
+				}
+
+				ci.id = int.Parse(words[i]);
+				ci.username.text = words[i+1];
+				ci.title.text = words[i+2];
+				ci.timer.text = "00:";
+				ci.timer.text += int.Parse (words[i+3]) < 10? "0" + words[i+3]:words[i+3];
+				ci.addButtonFunction();
+
 			}
 		}
 	}
 
-	IEnumerator stream(int id) {
-		WWW www = new WWW("https://s3.amazonaws.com/chirpper/" + id + ".wav");
-		//wait for 10% buffer
-		while (www.progress < 0.1f) {
-			yield return null;
+	IEnumerator wait(int seconds){
+		yield return new WaitForSeconds (seconds);
+	}
+
+	public IEnumerator stream(int id,Button button) {
+		if (playingButton != button || !source.isPlaying) {
+			if (playingButton != null) {
+				playingButton.image.overrideSprite = null;
+			}
+			playingButton = button;
+			playingButton.image.overrideSprite = stopImage;
+			print ("streaming id " + id + " yo");		
+			WWW www = new WWW ("https://s3.amazonaws.com/chirpper/" + id + ".wav");
+			//wait for 10% buffer
+//			while (www.progress < 0.1f) {
+//				yield return null;
+//			}
+			//set audio clip stream up
+			source.clip = www.GetAudioClip (false, true, AudioType.WAV);
+			while (!www.audioClip.isReadyToPlay) {
+				yield return null;
+			}
+			source.clip = www.audioClip;
+			source.Play ();
+		} else {
+			source.Stop();
+			playingButton.image.overrideSprite = null;
+			print("stopped yo");
 		}
-		//set audio clip stream up
-		source.clip = www.GetAudioClip (false, true,AudioType.WAV);
-		while (!www.audioClip.isReadyToPlay) {
-			yield return null;
-		}
-		source.clip = www.audioClip;
-		source.Play ();
+
 	}
 
 	/*void OnGUI(){

@@ -32,7 +32,7 @@ using System.Collections.Generic;
 public static class SavWav {
  
 	const int HEADER_SIZE = 44;
- 
+	public static float test = 0.4f;
 	public static byte[] Save(AudioClip clip) {
 //		if (!filename.ToLower().EndsWith(".wav")) {
 //			filename += ".wav";
@@ -47,9 +47,22 @@ public static class SavWav {
 		//Directory.CreateDirectory(Path.GetDirectoryName(filepath));
  
 		//using (var fileStream = CreateEmpty(filepath)) {
- 
+
+//			AudioClip ac = clip;
+//			float lengthL = ac.length;
+//			float samplesL = ac.samples;
+//			float samplesPerSec = (float)samplesL/lengthL;
+//			float[] samples = new float[(int)(samplesPerSec * actualTime)];
+//			ac.GetData(samples,0);
+//			
+//			clip = AudioClip.Create("RecordedSound",(int)(actualTime*samplesPerSec),1,44100,false,false);
+//			Debug.Log("actualTime: " + actualTime + " Length now: " + (actualTime * samplesPerSec));
+//			clip.SetData(samples,0);
+
+			//TrimSilence (clip, test);
+
 			byte[] file = ConvertAndWrite(clip);
- 
+ 			
 			byte[] header = WriteHeader(clip,file.Length);
 			byte[] final = new byte[header.Length + file.Length];
 			Buffer.BlockCopy(header,0,final,0,header.Length);

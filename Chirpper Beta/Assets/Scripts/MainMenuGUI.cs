@@ -49,6 +49,10 @@ public class MainMenuGUI : MonoBehaviour {
     GameObject networkObject;
     MyNetwork myNetwork;
 
+	float timer;
+	//refreshes automatically every 3 seconds
+	readonly float REFRESH_RATE = 3.0f;
+
 	// Use this for initialization
 	void Start () 
     {
@@ -75,6 +79,8 @@ public class MainMenuGUI : MonoBehaviour {
 
         networkObject = GameObject.FindGameObjectWithTag("Network");
         myNetwork = networkObject.GetComponent<MyNetwork>();
+		StartCoroutine(myNetwork.getRecentChirps ());
+
 	}
 
 	
@@ -82,6 +88,7 @@ public class MainMenuGUI : MonoBehaviour {
 		yield return Application.RequestUserAuthorization (UserAuthorization.Microphone);
 		if (Application.HasUserAuthorization (UserAuthorization.Microphone)) {
 			print("Got Access of Microphone");
+
 		} else {
 			print("Denied Access of Microphone");
 		}
@@ -89,6 +96,17 @@ public class MainMenuGUI : MonoBehaviour {
 
 	void Update () 
     {
+
+//		timer += Time.deltaTime;
+//		if (timer >= REFRESH_RATE){
+//			timer = 0f;
+//			if (homeChirpsPanel.active) {
+//				StartCoroutine (myNetwork.getFollowingChirps());
+//			}else if (recentChirpsPanel.active){
+//				StartCoroutine (myNetwork.getRecentChirps());
+//			}
+//		}
+
         createNewUsername.text = "@" + newUsername.text;
 	}
 
