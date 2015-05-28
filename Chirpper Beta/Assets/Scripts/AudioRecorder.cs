@@ -27,8 +27,10 @@ public class AudioRecorder : MonoBehaviour {
 
 
     int startedRecording = 0;
+    int startedPlayback = 0;
 	float length;
     bool isRecording;
+    bool isPlayingBack;
 
 	public bool getIsRecording()
 	{
@@ -40,6 +42,16 @@ public class AudioRecorder : MonoBehaviour {
 		isRecording = value;
 	}
 
+    public bool getIsPlayingBack()
+    {
+        return isPlayingBack;
+    }
+
+    public void setIsPlayingBack(bool value)
+    {
+        isPlayingBack = value;
+    }
+
 	// Use this for initialization
 	void Start () {
         menuGUI = GameObject.FindGameObjectWithTag("Menu");
@@ -49,6 +61,7 @@ public class AudioRecorder : MonoBehaviour {
 		myNetwork =  GameObject.FindGameObjectWithTag("Network").GetComponent<MyNetwork>();
 		audio = myNetwork.source;
         isRecording = false;
+        isPlayingBack = false;
 	}
 
 	public void RecordAudio()
@@ -80,6 +93,8 @@ public class AudioRecorder : MonoBehaviour {
         isRecording = false;
 		byte[] toSend = SavWav.Save(myAudioClip);
         StartCoroutine(myNetwork.sendChirp(menu.getChirpTitle(), toSend,(int)Math.Round (newPost.length)));
+        myAudioClip = null;
+        newPost.setTimer(0);
 	}
 
 
@@ -99,13 +114,15 @@ public class AudioRecorder : MonoBehaviour {
 		//to change record button when max length of chirp achieved
 		if (isRecording) {
 			stopRecordingButton.image.overrideSprite = stopRecordingSprite;
+            isPlayingBack = false;
 		}else{
 			stopRecordingButton.image.overrideSprite = null;
 		}
 
 		//to change play button logo when its done playing
-		if (!audio.isPlaying){
+		if (!isPlayingBack && !isRecording){
 			playButton.image.overrideSprite = null;
+            newPost.setTimer(myAudioClip.length);
 		}else{
 			playButton.image.overrideSprite = stopRecordingSprite;
 		}
@@ -114,17 +131,25 @@ public class AudioRecorder : MonoBehaviour {
 	public void PlayAudio()
 	{
 
-        isRecording = false;
+        //isRecording = false;
 		//audio.PlayOneShot(myAudioClip);
 
-        //newPost.setTimer(myAudioClip.length);
+        newPost.setTimer(myAudioClip.length);
 
 		audio.clip = myAudioClip;
 
-		if (!audio.isPlaying){
+		if (!audio.isPlaying)
+        {
 			audio.Play();
-		}else{
+            playButton.image.overrideSprite = null;
+            isPlayingBack = true;
+		}
+        else
+        {
 			audio.Stop();
+            playButton.image.overrideSprite = stopRecordingSprite;
+            newPost.setTimer(myAudioClip.length);
+            isPlayingBack = false;
 		}
 
 	}

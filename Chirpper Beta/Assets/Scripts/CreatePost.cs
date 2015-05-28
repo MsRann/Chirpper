@@ -8,6 +8,8 @@ public class CreatePost : MonoBehaviour {
     GameObject menu;
     AudioRecorder recorder;
 
+    public Slider timerSlider;
+
     public Text timerText;
     public float timer;
     bool pauseTimer = false;
@@ -25,6 +27,7 @@ public class CreatePost : MonoBehaviour {
         timerText = timerText.GetComponent<Text>();
         menu = GameObject.FindGameObjectWithTag("Menu");
         recorder = menu.GetComponent<AudioRecorder>();
+        timerSlider = timerSlider.GetComponent<Slider>();
         timer = 0;
 
 	}
@@ -59,9 +62,14 @@ public class CreatePost : MonoBehaviour {
 			}
 
         }
-        else
+        else if (recorder.getIsPlayingBack())
         {
-            timer = 0;
+            if (timer > 1)
+            {
+                timer -= Time.deltaTime;
+            }
+            else
+                recorder.setIsPlayingBack(false);
         }
 
         int minutes = Mathf.FloorToInt(timer / 60F);
