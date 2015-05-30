@@ -10,6 +10,7 @@ public class ChirpInfo : MonoBehaviour {
 	public Button playButton;
 	public int id;
 	public MyNetwork myNetwork;
+	public RawImage profilePicture;
 
 	void Start () {
 		myNetwork = GameObject.FindGameObjectWithTag("Network").GetComponent<MyNetwork>();

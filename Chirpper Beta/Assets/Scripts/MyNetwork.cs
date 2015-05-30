@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEditor;
 using System.Collections;
 using System.Linq;
 using System.IO;
@@ -22,11 +23,13 @@ public class MyNetwork : MonoBehaviour {
 	public Button playingButton;
 	public Sprite stopImage;
 	public AudioSource source;
-
+	bool isLoading = false;
     GameObject menuGUI;
     MainMenuGUI menu;
 
 	public GameObject chirpPrefab;
+
+	public Button uploadPicture;
 
 	void Start () 
     {
@@ -35,6 +38,8 @@ public class MyNetwork : MonoBehaviour {
 
         menuGUI = GameObject.FindGameObjectWithTag("Menu");
         menu = menuGUI.GetComponent<MainMenuGUI>();
+
+	//	uploadPicture.onClick.AddListener (() => {	StartCoroutine (sendProfilePicture());});
 	}
 	
 	IEnumerator followUser() {
@@ -344,6 +349,8 @@ public class MyNetwork : MonoBehaviour {
 			}
 			//loop a max of 3 times
 			int loop = words.Length >= 15? 15: words.Length;
+
+
 			for (int i = 0; i < loop; i+=5){
 				Vector3 newPos = recentChirps.transform.position;
 				newPos.y = 2 - ((i/5)*75);
@@ -368,6 +375,36 @@ public class MyNetwork : MonoBehaviour {
 				ci.timer.text = "00:";
 				ci.timer.text += int.Parse (words[i+3]) < 10? "0" + words[i+3]:words[i+3];
 				ci.addButtonFunction();
+
+
+
+
+				form = new WWWForm();
+				
+				form.AddField( "getUsersProfilePicture", ci.username.text);
+				download =  new WWW( url, form);
+				yield return download;
+				
+				//couldn't get extension for file
+				if(!string.IsNullOrEmpty(download.error)) {
+					print( "Error downloading: " + download.error );
+					
+				} else {
+					//download.text should be extension of file
+					WWW www = new WWW("https://s3.amazonaws.com/chirpperprofilepicture/" + username + download.text);
+					yield return www;
+					
+					if (!string.IsNullOrEmpty (www.error)) {
+						print("No Picture found, using default");
+					} else {
+						ci.profilePicture.texture = www.texture;
+						print ("Loading Picture");
+						//result(www.texture);
+					}
+				}
+
+			//	StartCoroutine(getProfilePicture(ci.profilePicture,ci.username.text,value => ci.profilePicture.texture = value));
+
 			}
 		}
 	}
@@ -444,7 +481,7 @@ public class MyNetwork : MonoBehaviour {
 
 	void Update(){
 		if (playingButton != null) {
-			if (!source.isPlaying) {
+			if (!source.isPlaying && !isLoading) {
 				playingButton.image.overrideSprite = null;
 			} else {
 				playingButton.image.overrideSprite = stopImage;
@@ -492,6 +529,33 @@ public class MyNetwork : MonoBehaviour {
                 // Collect info to display on user profile page
                 menu.SetUserInfo(words[0], words[1], words[2]);
                 menu.DisplayLoggedInPanel();
+
+//				form = new WWWForm();
+//				
+//				form.AddField( "getUsersProfilePicture", ci.username.text);
+//				download =  new WWW( url, form);
+//				yield return download;
+//				
+//				//couldn't get extension for file
+//				if(!string.IsNullOrEmpty(download.error)) {
+//					print( "Error downloading: " + download.error );
+//					
+//				} else {
+//					//download.text should be extension of file
+//					WWW www = new WWW("https://s3.amazonaws.com/chirpperprofilepicture/" + username + words[3]);
+//					yield return www;
+//					
+//					if (!string.IsNullOrEmpty (www.error)) {
+//						print("No Picture found, using default");
+//					} else {
+//						ci.profilePicture.texture = www.texture;
+//						print ("Loading Picture");
+//						//result(www.texture);
+//					}
+//				}
+
+
+
             }
 
 
@@ -525,6 +589,7 @@ public class MyNetwork : MonoBehaviour {
 			}
 			//get 3 recent chirps and add them to the panel
 			for (int i = 0; i < 15; i+=5){
+			    
 				Vector3 newPos = recentChirps.transform.position;
 				newPos.y = 2 - ((i/5)*75);
 				GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
@@ -552,7 +617,38 @@ public class MyNetwork : MonoBehaviour {
 				}
 				ci.timer.text = "00:";
 				ci.timer.text += int.Parse (words[i+3]) < 10? "0" + words[i+3]:words[i+3];
+
 				ci.addButtonFunction();
+
+
+
+				form = new WWWForm();
+				
+				form.AddField( "getUsersProfilePicture", ci.username.text);
+				download =  new WWW( url, form);
+				yield return download;
+				
+				//couldn't get extension for file
+				if(!string.IsNullOrEmpty(download.error)) {
+					print( "Error downloading: " + download.error );
+					
+				} else {
+					//download.text should be extension of file
+					WWW www = new WWW("https://s3.amazonaws.com/chirpperprofilepicture/" + username + download.text);
+					yield return www;
+					
+					if (!string.IsNullOrEmpty (www.error)) {
+						print("No Picture found, using default");
+					} else {
+						ci.profilePicture.texture = www.texture;
+						print ("Loading Picture");
+						//result(www.texture);
+					}
+				}
+
+				//StartCoroutine(getProfilePicture(ci.profilePicture,ci.username.text,value => ci.profilePicture.texture = value));
+
+
 			}
 		}
 	}
@@ -567,6 +663,7 @@ public class MyNetwork : MonoBehaviour {
 				playingButton.image.overrideSprite = null;
 			}
 			playingButton = button;
+			isLoading = true;
 			playingButton.image.overrideSprite = stopImage;
 			print ("streaming id " + id + " yo");		
 			WWW www = new WWW ("https://s3.amazonaws.com/chirpper/" + id + ".wav");
@@ -579,6 +676,7 @@ public class MyNetwork : MonoBehaviour {
 			while (!www.audioClip.isReadyToPlay) {
 				yield return null;
 			}
+			isLoading = false;
 			source.clip = www.audioClip;
 			source.Play ();
 		} else {
@@ -587,6 +685,66 @@ public class MyNetwork : MonoBehaviour {
 			print("stopped yo");
 		}
 
+	}
+
+
+	
+	public IEnumerator sendProfilePicture() {
+		string pathname = EditorUtility.OpenFilePanel("Load file","","*.png,*.jpg");
+		if (pathname != "") {
+			string extension = pathname.Substring (pathname.LastIndexOf ('.'));
+			extension = extension.ToLower ();
+			if (extension == ".jpg" || extension == ".png") {
+				WWWForm form = new WWWForm ();
+				FileStream fs = new FileStream (pathname, FileMode.Open, FileAccess.Read, FileShare.Read);
+				BinaryReader reader = new BinaryReader (fs);
+				byte[] toSend = new byte[fs.Length];
+				fs.Read (toSend, 0, System.Convert.ToInt32 (fs.Length));
+				fs.Close ();
+			
+				form.AddField ("username", username);
+				form.AddField ("extension", extension);
+				form.AddBinaryData ("profilePicture", toSend);
+				WWW download = new WWW (url, form);
+				yield return download;
+			
+				if (!string.IsNullOrEmpty (download.error)) {
+					print ("Error downloading: " + download.error);
+				} else {
+					print (download.text);
+				}
+			} else {
+				print ("ERROR: Selected file is not a valid extension");
+			}
+		
+		}
+	}
+
+	//requestedusername is the username of the profile picture requested
+	//picturetochange is the texture where the picture will be returned and changed to
+	IEnumerator getProfilePicture(RawImage pictureToChange,string requestedUsername,System.Action<Texture2D> result) {
+		WWWForm form = new WWWForm();
+		
+		form.AddField( "getUsersProfilePicture", requestedUsername );
+		WWW download =  new WWW( url, form);
+		yield return download;
+		
+		//couldn't get extension for file
+		if(!string.IsNullOrEmpty(download.error)) {
+			print( "Error downloading: " + download.error );
+			
+		} else {
+			//download.text should be extension of file
+			WWW www = new WWW("https://s3.amazonaws.com/chirpperprofilepicture/" + username + download.text);
+			yield return www;
+			
+			if (!string.IsNullOrEmpty (www.error)) {
+				print("No Picture found, using default");
+			} else {
+				print ("Loading Picture");
+				result(www.texture);
+			}
+		}
 	}
 
 	/*void OnGUI(){
