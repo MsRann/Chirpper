@@ -271,10 +271,8 @@ public class MyNetwork : MonoBehaviour {
     }
 
 
-	IEnumerator getChirps(string username) {
+	public IEnumerator getChirps(string username) {
 		WWWForm form = new WWWForm();
-		//	Dictionary<string,string> headers = form.headers;
-		//	headers ["COOKIE"] = cookie;
 		form.AddField( "getUsersChirps", username );
 		WWW download = new WWW( url, form );
 		yield return download;
@@ -282,6 +280,75 @@ public class MyNetwork : MonoBehaviour {
 		if(!string.IsNullOrEmpty(download.error)) {
 			print( "Error downloading: " + download.error );
 		} else {
+			print("DOWNLOADED TEXT: " + download.text);
+			GameObject recentChirps = GameObject.Find("My Chirps Feed Panel");
+			//gets results and stores them into string array split with delimiter \\
+			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
+			//get 3 recent chirps and add them to the panel
+			
+			//Removes previous old chirps
+			if(recentChirps.transform.Find("myChirp0")!= null){
+				Destroy(recentChirps.transform.Find("myChirp0").gameObject);
+				Destroy(recentChirps.transform.Find("myChirp4").gameObject);
+				Destroy(recentChirps.transform.Find("myChirp8").gameObject);
+			}
+			//loop a max of 3 times
+			int loop = words.Length >= 12? 12: words.Length;
+			
+			
+			for (int i = 0; i < loop; i+=4){
+				Vector3 newPos = recentChirps.transform.position;
+				newPos.y = 2 - ((i/4)*75);
+				GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
+				temp.transform.position = newPos;
+				temp.transform.SetParent (recentChirps.transform,false);
+				temp.name = "myChirp" + i;
+				ChirpInfo ci = temp.GetComponent<ChirpInfo>();
+				
+				DateTime dt = Convert.ToDateTime(words[i+3]); // THIS LINE IS CAUSING AN ERROR
+				if ((DateTime.Now - dt).TotalDays >= 1){
+					ci.timestamp.text = dt.ToString ("MMM") + " " + dt.Day ;
+				}else if ((DateTime.Now - dt).TotalHours > 0){
+					ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalHours)) + " hr ago";
+				}else{
+					ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalMinutes)) + " min ago";
+				}
+				
+				ci.id = int.Parse(words[i]);
+				//ci.username.text = words[i+1];
+				ci.title.text = words[i+1];
+				ci.timer.text = "00:";
+				ci.timer.text += int.Parse (words[i+2]) < 10? "0" + words[i+2]:words[i+2];
+				ci.addButtonFunction();
+			}
+				
+				
+				
+//				form = new WWWForm();
+//				
+//				form.AddField( "getUsersProfilePicture", ci.username.text);
+//				download =  new WWW( url, form);
+//				yield return download;
+//				
+//				//couldn't get extension for file
+//				if(!string.IsNullOrEmpty(download.error)) {
+//					print( "Error downloading: " + download.error );
+//					
+//				} else {
+//					//download.text should be extension of file
+//					WWW www = new WWW("https://s3.amazonaws.com/chirpperprofilepicture/" + username + download.text);
+//					yield return www;
+//					
+//					if (!string.IsNullOrEmpty (www.error)) {
+//						print("No Picture found, using default");
+//					} else {
+//						ci.profilePicture.texture = www.texture;
+//						print ("Loading Picture");
+//						//result(www.texture);
+//					}
+//				}
+
+
 			print(download.text);
 			test.text = download.text;
 		}
@@ -398,7 +465,6 @@ public class MyNetwork : MonoBehaviour {
 						print("No Picture found, using default");
 					} else {
 						ci.profilePicture.texture = www.texture;
-						print ("Loading Picture");
 						//result(www.texture);
 					}
 				}
@@ -641,7 +707,6 @@ public class MyNetwork : MonoBehaviour {
 						print("No Picture found, using default");
 					} else {
 						ci.profilePicture.texture = www.texture;
-						print ("Loading Picture");
 						//result(www.texture);
 					}
 				}
@@ -720,32 +785,6 @@ public class MyNetwork : MonoBehaviour {
 		}
 	}
 
-	//requestedusername is the username of the profile picture requested
-	//picturetochange is the texture where the picture will be returned and changed to
-	IEnumerator getProfilePicture(RawImage pictureToChange,string requestedUsername,System.Action<Texture2D> result) {
-		WWWForm form = new WWWForm();
-		
-		form.AddField( "getUsersProfilePicture", requestedUsername );
-		WWW download =  new WWW( url, form);
-		yield return download;
-		
-		//couldn't get extension for file
-		if(!string.IsNullOrEmpty(download.error)) {
-			print( "Error downloading: " + download.error );
-			
-		} else {
-			//download.text should be extension of file
-			WWW www = new WWW("https://s3.amazonaws.com/chirpperprofilepicture/" + username + download.text);
-			yield return www;
-			
-			if (!string.IsNullOrEmpty (www.error)) {
-				print("No Picture found, using default");
-			} else {
-				print ("Loading Picture");
-				result(www.texture);
-			}
-		}
-	}
 
 	/*void OnGUI(){
 		searchField = GUI.TextField (new Rect (600, 10, 200, 20), searchField, 25);

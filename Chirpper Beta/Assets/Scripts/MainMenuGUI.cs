@@ -216,10 +216,12 @@ public class MainMenuGUI : MonoBehaviour {
         recentChirpsPanel.SetActive(false);
         myChirpsPanel.SetActive(false);
         loginFailedPanel.SetActive(false);
+		StartCoroutine(myNetwork.getFollowingChirps());
     }
 
     public void DisplayMyChirpsPanel()
     {
+		StartCoroutine (myNetwork.getChirps(currentUsername.text.Substring(1)));
         followingPanel.SetActive(false);
         followersPanel.SetActive(false);
         homeChirpsPanel.SetActive(false);
