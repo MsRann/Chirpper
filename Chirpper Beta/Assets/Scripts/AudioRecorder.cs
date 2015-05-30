@@ -8,7 +8,7 @@ using System.Text;
 
 public class AudioRecorder : MonoBehaviour {
 
-	public readonly int MAX_CHIRP_LENGTH = 15;
+	public readonly int MAX_CHIRP_LENGTH = 30;
 	public AudioClip myAudioClip;
 	AudioSource audio;
 
@@ -71,6 +71,10 @@ public class AudioRecorder : MonoBehaviour {
         if (startedRecording == 1)
         {
             isRecording = true;
+			//stop playing previously recorded thing when recording
+			if (audio.isPlaying){
+				audio.Stop();
+			}
             newPost.resetTimer();
             newPost.setPauseTimer(false);
             myAudioClip = Microphone.Start(null, false, MAX_CHIRP_LENGTH, 44100);
@@ -123,7 +127,8 @@ public class AudioRecorder : MonoBehaviour {
 		//to change play button logo when its done playing
 		if (!isPlayingBack && !isRecording){
 			playButton.image.overrideSprite = null;
-            newPost.setTimer(myAudioClip.length);
+			if (myAudioClip != null)
+            	newPost.setTimer(myAudioClip.length);
 		}else{
 			playButton.image.overrideSprite = stopRecordingSprite;
 		}

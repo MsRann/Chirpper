@@ -354,12 +354,12 @@ public class MyNetwork : MonoBehaviour {
 				ChirpInfo ci = temp.GetComponent<ChirpInfo>();
 				
 				DateTime dt = Convert.ToDateTime(words[i+4]); // THIS LINE IS CAUSING AN ERROR
-				if ((dt - DateTime.Now).TotalDays >= 1){
-					ci.timestamp.text = dt.Month + " " + dt.Day ;
-				}else if ((dt - DateTime.Now).TotalHours > 0){
-					ci.timestamp.text = (int)(Math.Round ((dt - DateTime.Now).TotalHours)) + " hr ago";
+				if ((DateTime.Now - dt).TotalDays >= 1){
+					ci.timestamp.text = dt.ToString ("MMM") + " " + dt.Day ;
+				}else if ((DateTime.Now - dt).TotalHours > 0){
+					ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalHours)) + " hr ago";
 				}else{
-					ci.timestamp.text = (int)(Math.Round ((dt - DateTime.Now).TotalMinutes)) + " min ago";
+					ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalMinutes)) + " min ago";
 				}
 				
 				ci.id = int.Parse(words[i]);
@@ -535,21 +535,24 @@ public class MyNetwork : MonoBehaviour {
 				ChirpInfo ci = temp.GetComponent<ChirpInfo>();
 
 				DateTime dt = Convert.ToDateTime(words[i+4]);
-				if ((dt - DateTime.Now).TotalDays >= 1){
-					ci.timestamp.text = dt.Month + " " + dt.Day ;
-				}else if ((dt - DateTime.Now).TotalHours > 0){
-					ci.timestamp.text = (int)(Math.Round ((dt - DateTime.Now).TotalHours)) + " hr ago";
+				if ((DateTime.Now - dt).TotalDays >= 1){
+					ci.timestamp.text = dt.ToString ("MMM") + " " + dt.Day ;
+				}else if ((DateTime.Now - dt).TotalHours > 0){
+					ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalHours)) + " hr ago";
 				}else{
-					ci.timestamp.text = (int)(Math.Round ((dt - DateTime.Now).TotalMinutes)) + " min ago";
+					ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalMinutes)) + " min ago";
 				}
 
 				ci.id = int.Parse(words[i]);
 				ci.username.text = words[i+1];
+				
 				ci.title.text = words[i+2];
+				if (ci.title.text.Length > 20){
+					ci.title.fontSize = 10;
+				}
 				ci.timer.text = "00:";
 				ci.timer.text += int.Parse (words[i+3]) < 10? "0" + words[i+3]:words[i+3];
 				ci.addButtonFunction();
-
 			}
 		}
 	}
