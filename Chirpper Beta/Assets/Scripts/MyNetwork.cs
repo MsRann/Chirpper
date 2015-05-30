@@ -353,7 +353,7 @@ public class MyNetwork : MonoBehaviour {
 				temp.name = "FollowingChirp" + i;
 				ChirpInfo ci = temp.GetComponent<ChirpInfo>();
 				
-				DateTime dt = Convert.ToDateTime(words[i+4]);
+				DateTime dt = Convert.ToDateTime(words[i+4]); // THIS LINE IS CAUSING AN ERROR
 				if ((dt - DateTime.Now).TotalDays >= 1){
 					ci.timestamp.text = dt.Month + " " + dt.Day ;
 				}else if ((dt - DateTime.Now).TotalHours > 0){

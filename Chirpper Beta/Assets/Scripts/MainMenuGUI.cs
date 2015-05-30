@@ -115,6 +115,11 @@ public class MainMenuGUI : MonoBehaviour {
         return chirpTitle.text.ToString();
     }
 
+    public void clearChirpTitle()
+    {
+        chirpTitle.text = "";
+    }
+
     public void SetUserInfo(string following, string followers, string chirps)
     {
         if (following != "nc")

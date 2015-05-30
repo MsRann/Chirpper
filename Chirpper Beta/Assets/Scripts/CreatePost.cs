@@ -19,6 +19,7 @@ public class CreatePost : MonoBehaviour {
     public void setTimer(float time)
     {
         timer = time;
+        length = time;
     }
 
 	// Use this for initialization
@@ -64,12 +65,16 @@ public class CreatePost : MonoBehaviour {
         }
         else if (recorder.getIsPlayingBack())
         {
-            if (timer > 1)
+            if (timer > 0.1)
             {
                 timer -= Time.deltaTime;
+                timerSlider.value = (length - timer) / length;
             }
             else
+            {
                 recorder.setIsPlayingBack(false);
+                timerSlider.value = 0;
+            }  
         }
 
         int minutes = Mathf.FloorToInt(timer / 60F);

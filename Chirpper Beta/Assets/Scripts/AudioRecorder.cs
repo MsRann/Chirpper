@@ -93,6 +93,7 @@ public class AudioRecorder : MonoBehaviour {
         isRecording = false;
 		byte[] toSend = SavWav.Save(myAudioClip);
         StartCoroutine(myNetwork.sendChirp(menu.getChirpTitle(), toSend,(int)Math.Round (newPost.length)));
+        menu.clearChirpTitle();
         myAudioClip = null;
         newPost.setTimer(0);
 	}
