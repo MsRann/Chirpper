@@ -57,6 +57,7 @@ public class MainMenuGUI : MonoBehaviour {
 
     // For Following Panel
     public Text numberOfFollowing;
+    public Text noFollowingText;
 
     public Text createNewUsername;
 
@@ -135,6 +136,29 @@ public class MainMenuGUI : MonoBehaviour {
 
         createNewUsername.text = "@" + newUsername.text;
 	}
+
+    // For Logging Out
+    public void Logout()
+    {
+        loggedOutPanel.SetActive(true);
+        recentChirpsPanel.SetActive(true);
+
+        postChirpsPanel.SetActive(false);
+        followingPanel.SetActive(false);
+        followersPanel.SetActive(false);
+        homeChirpsPanel.SetActive(false);
+        myChirpsPanel.SetActive(false);
+        loggedInPanel.SetActive(false);
+
+        myNetwork.isLoggedIn = false;
+
+        newUsername.text = "";
+        newPassword.text = "";
+        newPasswordConfirm.text = "";
+
+        oldUsername.text = "";
+        oldPassword.text = "";
+    }
 
     // For Following Users
     public void ClickPreviewFollowUser()
@@ -448,6 +472,7 @@ public class MainMenuGUI : MonoBehaviour {
 	public void DisplayLoggedInPanel()
 	{
 		currentUsername.text = "@" + oldUsername.text;
+        Debug.Log("Welcome Back, " + currentUsername.text + "!");
 		loggedInPanel.SetActive(true);
 		postChirpsPanel.SetActive(true);
         recentChirpsPanel.SetActive(false);
@@ -459,6 +484,7 @@ public class MainMenuGUI : MonoBehaviour {
     public void DisplayNewUserLoggedInPanel()
     {
         currentUsername.text = "@" + newUsername.text;
+        Debug.Log("Welcome to Chirpper, " + currentUsername.text);
         loggedInPanel.SetActive(true);
         postChirpsPanel.SetActive(true);
         recentChirpsPanel.SetActive(false);

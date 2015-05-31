@@ -411,9 +411,12 @@ public class MyNetwork : MonoBehaviour {
                 if (Convert.ToInt32(words[0]) < 1)
                 {
                     Debug.Log("[" + thisUsername + "] is not following anyone.");
+                    menu.noFollowingText.enabled = true;
                 }
                 else
                 {
+                    menu.noFollowingText.enabled = false;
+
                     for (int i = 1; i < words.Length - 1; i++)
                     {
                         Debug.Log("Following #" + i + ": " + words[i]);
@@ -438,13 +441,32 @@ public class MyNetwork : MonoBehaviour {
                         GameObject following = GameObject.Find("Following Panel");
                         //get 6 recent chirppers and add them to the panel
 
-                        //Removes previous old chirps
-                        if (following.transform.Find("following0") != null)
+                        //Removes previous old chirppers
+                        /*if (following.transform.Find("following1") != null)
+                            Destroy(following.transform.Find("following1").gameObject);
+                        if (following.transform.Find("following2") != null)
+                            Destroy(following.transform.Find("following2").gameObject);
+                        if (following.transform.Find("following3") != null)
+                            Destroy(following.transform.Find("following3").gameObject);
+                        if (following.transform.Find("following4") != null)
+                            Destroy(following.transform.Find("following4").gameObject);
+                        if (following.transform.Find("following5") != null)
+                            Destroy(following.transform.Find("following5").gameObject);
+                        if (following.transform.Find("following6") != null)
+                            Destroy(following.transform.Find("following6").gameObject);*/
+
+                        if (following.transform.Find("following1") != null)
                         {
-                            Destroy(following.transform.Find("following0").gameObject);
+                            Debug.Log("Destroying old chirpper list...");
+
                             Destroy(following.transform.Find("following1").gameObject);
                             Destroy(following.transform.Find("following2").gameObject);
+                            Destroy(following.transform.Find("following3").gameObject);
+                            Destroy(following.transform.Find("following4").gameObject);
+                            Destroy(following.transform.Find("following5").gameObject);
+                            Destroy(following.transform.Find("following6").gameObject);
                         }
+
                         //loop a max of 6 times
                         int loop = 0;
 
@@ -452,12 +474,69 @@ public class MyNetwork : MonoBehaviour {
                             loop = 6;
                         else
                             loop = words.Length - 1;
-
+                        
                         for (int i = 1; i < loop; i++)
                         {
                             Debug.Log("Following #" + i + ": " + words[i]);
                             Vector3 newPos = following.transform.position;
-                            newPos.y = 2 - ((i / 4) * 75);
+
+                            // Chirpper #1 (-70, 2)     Chirpper #2 (203, 2)
+                            // Chirpper #3 (-70, -66)   Chirpper #4 (203, -66)
+                            // Chirpper #5 (-70, -135)  Chirpper #6 (203, -135)
+                            switch(i)
+                            {
+                                // Chirpper #1 Position
+                                case 1:
+                                    {
+                                        newPos.x = -70;
+                                        newPos.y = 2;
+                                        break;
+                                    }
+                                // Chirpper #2 Position
+                                case 2:
+                                    {
+                                        newPos.x = 203;
+                                        newPos.y = 2;
+                                        break;
+                                    }
+                                // Chirpper #3 Position
+                                case 3:
+                                    {
+                                        newPos.x = -70;
+                                        newPos.y = -66;
+                                        break;
+                                    }
+                                // Chirpper #4 Position
+                                case 4:
+                                    {
+                                        newPos.x = 203;
+                                        newPos.y = -66;
+                                        break;
+                                    }
+                                // Chirpper #5 Position
+                                case 5:
+                                    {
+                                        newPos.x = -70;
+                                        newPos.y = -135;
+                                        break;
+                                    }
+                                // Chirpper #6 Position
+                                case 6:
+                                    {
+                                        newPos.x = 203;
+                                        newPos.y = -135;
+                                        break;
+                                    }
+                                // Default to the first position
+                                default:
+                                    {
+                                        newPos.x = -70;
+                                        newPos.y = 2;
+                                        break;
+                                    }
+                            }
+                            //newPos.y = 2 - ((i / 4) * 75);
+                            //Debug.Log("X-POS: " + newPos.x + " Y-POS: " + newPos.y);
                             GameObject temp = Instantiate(chirpperPrefab, newPos, Quaternion.identity) as GameObject;
                             temp.transform.position = newPos;
                             temp.transform.SetParent(following.transform, false);
