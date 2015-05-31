@@ -59,6 +59,10 @@ getFollowingChirps(string username)
 getRecentChirps()
 	- Up to 8 chirps (id, username, title,length,timestamp)
 
+getTopChirppers()
+	- Number of ALL the chirppers in the database
+	- Chirppers usernames
+
 ============================== EDITED ============================
 ==================================================================
 
