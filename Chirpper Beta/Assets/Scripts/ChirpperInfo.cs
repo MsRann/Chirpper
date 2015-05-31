@@ -9,7 +9,7 @@ public class ChirpperInfo : MonoBehaviour
     public Text time;
     public Button playButton;
     public Button followButton;
-    public Button unfollowButton;
+    //public Button unfollowButton;
     public RawImage profilePicture;
 
     public int id;
@@ -39,6 +39,6 @@ public class ChirpperInfo : MonoBehaviour
 
     public void addUnfollowButtonFunction()
     {
-        unfollowButton.onClick.AddListener(() => { StartCoroutine(myNetwork.unfollowUser(menu.currentUsername.text, username.text)); });
+        //unfollowButton.onClick.AddListener(() => { StartCoroutine(myNetwork.unfollowUser(menu.currentUsername.text, username.text)); });
     }
 }

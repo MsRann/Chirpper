@@ -427,6 +427,7 @@ public class MyNetwork : MonoBehaviour {
 
                 if (menu.followingPanel.activeSelf)
                 {
+                    Debug.Log("Displaying a list of the people that [" + thisUsername + "] is following...");
                     GameObject following = GameObject.Find("Following Panel");
                     //get 6 recent chirppers and add them to the panel
 
@@ -438,11 +439,16 @@ public class MyNetwork : MonoBehaviour {
                         Destroy(following.transform.Find("following2").gameObject);
                     }
                     //loop a max of 6 times
-                    int loop = 6;
+                    int loop = 0;
 
+                    if (words.Length > 5)
+                        loop = 6;
+                    else
+                        loop = words.Length - 1;
 
-                    for (int i = 0; i < loop; i++)
+                    for (int i = 1; i < loop; i++)
                     {
+                        Debug.Log("Following #" + i + ": " + words[i]);
                         Vector3 newPos = following.transform.position;
                         newPos.y = 2 - ((i / 4) * 75);
                         GameObject temp = Instantiate(chirpperPrefab, newPos, Quaternion.identity) as GameObject;
@@ -451,7 +457,7 @@ public class MyNetwork : MonoBehaviour {
                         temp.name = "following" + i;
                         ChirpperInfo ci = temp.GetComponent<ChirpperInfo>();
 
-                        ci.username.text = words[i + 1];
+                        ci.username.text = words[i];
                         ci.description.text = "This is a small sample of some description text...";
                         ci.time.text = "00:14";
                         ci.addUnfollowButtonFunction();
