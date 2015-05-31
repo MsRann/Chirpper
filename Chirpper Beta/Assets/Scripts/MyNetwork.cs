@@ -27,6 +27,8 @@ public class MyNetwork : MonoBehaviour {
     GameObject menuGUI;
     MainMenuGUI menu;
 
+    public bool isLoggedIn = false;
+
 	public GameObject chirpPrefab;
 
 	public Button uploadPicture;
@@ -42,10 +44,10 @@ public class MyNetwork : MonoBehaviour {
 	//	uploadPicture.onClick.AddListener (() => {	StartCoroutine (sendProfilePicture());});
 	}
 	
-	IEnumerator followUser() {
+	public IEnumerator followUser(string username, string followUsername) {
 		WWWForm form = new WWWForm();
-		form.AddField( "username", username );
-		form.AddField( "follow", follow);
+		form.AddField("username", username );
+        form.AddField("follow", followUsername);
 		WWW download = new WWW( url, form );
 		
 		yield return download;
@@ -73,10 +75,11 @@ public class MyNetwork : MonoBehaviour {
 		}
 	}
 
-	IEnumerator unfollowUser() {
+    public IEnumerator unfollowUser(string username, string unfollowUsername)
+    {
 		WWWForm form = new WWWForm();
-		form.AddField( "username", username );
-		form.AddField( "unfollow", follow);
+		form.AddField("username", username );
+        form.AddField("unfollow", unfollowUsername);
 		WWW download = new WWW( url, form );
 		
 		yield return download;
@@ -260,6 +263,7 @@ public class MyNetwork : MonoBehaviour {
                 // Ask the user to create a new username
                 menu.SetUserInfo("0", "0", "0");
                 menu.DisplayNewUserLoggedInPanel();
+                isLoggedIn = true;
             }
 
 
@@ -595,6 +599,7 @@ public class MyNetwork : MonoBehaviour {
                 // Collect info to display on user profile page
                 menu.SetUserInfo(words[0], words[1], words[2]);
                 menu.DisplayLoggedInPanel();
+                isLoggedIn = true;
 
 //				form = new WWWForm();
 //				
@@ -685,6 +690,7 @@ public class MyNetwork : MonoBehaviour {
 				ci.timer.text += int.Parse (words[i+3]) < 10? "0" + words[i+3]:words[i+3];
 
 				ci.addButtonFunction();
+                ci.addProfileButtonFunction();
 
 
 

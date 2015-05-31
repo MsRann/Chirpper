@@ -21,21 +21,33 @@ public class MainMenuGUI : MonoBehaviour {
     public GameObject passwordMismatchPanel;
     public GameObject addAccountFailedPanel;
     public GameObject homeButtonPanel;
+    public GameObject userPreviewPanel;
+    public GameObject loggedOutPanel;
+    public GameObject blackoutPanel;
 
+    // For Sign Up Panel
     public InputField newEmailAddress;
     public InputField newPassword;
     public InputField newPasswordConfirm;
     public InputField newUsername;
 
+    // For Login Panel
     public InputField oldUsername;
     public InputField oldPassword;
 
+    // For Create Chirps Panel
     public InputField chirpTitle;
 
+    // For Logged In Panel
     public Text currentUsername;
     public Text currentChirpsText;
     public Text currentFollowersText;
     public Text currentFollowingText;
+
+    // For User Preview Panel
+    public Text previewUsername;
+    public RawImage previewImage;
+    string lastPanel = "";
 
     public Text createNewUsername;
 
@@ -78,11 +90,13 @@ public class MainMenuGUI : MonoBehaviour {
         passwordMismatchPanel.SetActive(false);
         addAccountFailedPanel.SetActive(false);
         homeButtonPanel.SetActive(false);
+        userPreviewPanel.SetActive(false);
+        loggedOutPanel.SetActive(true);
+        blackoutPanel.SetActive(false);
 
         networkObject = GameObject.FindGameObjectWithTag("Network");
         myNetwork = networkObject.GetComponent<MyNetwork>();
 		StartCoroutine(myNetwork.getRecentChirps ());
-
 	}
 
 	
@@ -111,6 +125,77 @@ public class MainMenuGUI : MonoBehaviour {
 
         createNewUsername.text = "@" + newUsername.text;
 	}
+
+    // For User Preview Panel
+    public void DisplayUserPreviewPanel(string username, RawImage profileImage)
+    {
+        Debug.Log("Displaying User Preview Panel...");
+        Debug.Log("Previewing username: " + username);
+
+        previewUsername.text = "@" + username;
+        previewImage = profileImage;
+        //blackoutPanel.SetActive(true);
+        userPreviewPanel.SetActive(true);
+
+        loginPanel.SetActive(false);
+        signUpPanel.SetActive(false);
+        loggedInPanel.SetActive(false);
+        loggedOutPanel.SetActive(false);
+        postChirpsPanel.SetActive(false);
+
+        if (followingPanel.activeSelf)
+        {
+            followingPanel.SetActive(false);
+            lastPanel = "followingPanel";
+        }
+        else if (followersPanel.activeSelf)
+        {
+            followersPanel.SetActive(false);
+            lastPanel = "followersPanel";
+        }
+        else if (homeChirpsPanel.activeSelf)
+        {
+            homeChirpsPanel.SetActive(false);
+            lastPanel = "homeChirpsPanel";
+        }
+        else if (recentChirpsPanel.activeSelf)
+        {
+            recentChirpsPanel.SetActive(false);
+            lastPanel = "recentChirpsPanel";
+        }
+        else if (myChirpsPanel.activeSelf)
+        {
+            myChirpsPanel.SetActive(false);
+            lastPanel = "myChirpsPanel";
+        }
+    }
+
+    public void CloseUserPreviewPanel()
+    {
+        Debug.Log("Closing User Preview Panel");
+        //blackoutPanel.SetActive(false);
+        userPreviewPanel.SetActive(false);
+
+        loggedOutPanel.SetActive(true);
+
+        if (myNetwork.isLoggedIn)
+        {
+            loggedInPanel.SetActive(true);
+            postChirpsPanel.SetActive(true);
+        }
+        
+
+        if (lastPanel == "followingPanel")
+            followingPanel.SetActive(true);
+        else if (lastPanel == "followersPanel")
+            followersPanel.SetActive(true);
+        else if (lastPanel == "homeChirpsPanel")
+            homeChirpsPanel.SetActive(true);
+        else if (lastPanel == "recentChirpsPanel")
+            recentChirpsPanel.SetActive(true);
+        else if (lastPanel == "myChirpsPanel")
+            myChirpsPanel.SetActive(true);
+    }
 
     public string getChirpTitle()
     {
