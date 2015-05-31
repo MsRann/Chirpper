@@ -20,6 +20,7 @@ public class MainMenuGUI : MonoBehaviour {
     public GameObject newUsernameFailedPanel;
     public GameObject passwordMismatchPanel;
     public GameObject addAccountFailedPanel;
+    public GameObject homeButtonPanel;
 
     public InputField newEmailAddress;
     public InputField newPassword;
@@ -76,6 +77,7 @@ public class MainMenuGUI : MonoBehaviour {
         newAccountFailedPanel.SetActive(false);
         passwordMismatchPanel.SetActive(false);
         addAccountFailedPanel.SetActive(false);
+        homeButtonPanel.SetActive(false);
 
         networkObject = GameObject.FindGameObjectWithTag("Network");
         myNetwork = networkObject.GetComponent<MyNetwork>();
@@ -135,6 +137,11 @@ public class MainMenuGUI : MonoBehaviour {
         Debug.Log("Trying to login...");
         StartCoroutine (myNetwork.login(oldUsername.text.ToString(), oldPassword.text.ToString()));
         currentUsername.text = newUsername.text;
+    }
+
+    public void DisplayAllChirppersPanel()
+    {
+
     }
 
     public void DisplayAddAccountFailedPanel()
@@ -273,6 +280,7 @@ public class MainMenuGUI : MonoBehaviour {
         recentChirpsPanel.SetActive(false);
         homeChirpsPanel.SetActive(true);
 		loginPanel.SetActive(false);
+        homeButtonPanel.SetActive(true);
 	}
 
     public void DisplayNewUserLoggedInPanel()
@@ -284,6 +292,7 @@ public class MainMenuGUI : MonoBehaviour {
         homeChirpsPanel.SetActive(true);
         signUpPanel.SetActive(false);
         createUsernamePanel.SetActive(false);
+        homeButtonPanel.SetActive(true);
     }
 
 	public void CancelLogin()
