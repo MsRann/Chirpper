@@ -94,8 +94,11 @@ public class MyNetwork : MonoBehaviour {
 		if(!string.IsNullOrEmpty(download.error)) {
 			print( "Error downloading: " + download.error );
 		} else {
-			print(download.text);
-			test.text = download.text;
+            string[] words = download.text.Split(delim, System.StringSplitOptions.None);
+
+            Debug.Log("[" + username + "] has just unfollowed: [" + unfollowUsername + "]");
+            menu.SetUserInfo(words[0], "nc", "nc");
+            menu.previewFollowText.text = "Follow";
 		}
 	}
 
@@ -365,23 +368,183 @@ public class MyNetwork : MonoBehaviour {
 		}
 	}
 
-	IEnumerator getFollowers() {
-		WWWForm form = new WWWForm();
-		form.AddField( "getFollowers", username );
-		WWW download = new WWW( url, form );
-		yield return download;
-		
-		if(!string.IsNullOrEmpty(download.error)) {
-			print( "Error downloading: " + download.error );
-		} else {
-			//gets results and stores them into string array split with delimiter \\
-			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
-			for (int i = 0; i < words.Length; i ++){
-				//print(i + ": " + words[i]);
-			}
-			//print(download.text);
-			//test.text = download.text;
-		}
+    public IEnumerator getFollowers(string thisUsername, string checkUsername)
+    {
+
+        if (isLoggedIn)
+        {
+            WWWForm form = new WWWForm();
+            form.AddField("getFollowers", thisUsername);
+            WWW download = new WWW(url, form);
+            yield return download;
+
+            if (!string.IsNullOrEmpty(download.error))
+            {
+                print("Error downloading: " + download.error);
+            }
+            else
+            {
+                //gets results and stores them into string array split with delimiter \\
+                string[] words = download.text.Split(delim, System.StringSplitOptions.None);
+                for (int i = 0; i < words.Length; i++)
+                {
+                    //print(i + ": " + words[i]);
+                }
+
+                Debug.Log("Number of people following [" + thisUsername + "]: " + words[0]);
+                menu.SetUserInfo("nc", words[0], "nc");
+
+                if (Convert.ToInt32(words[0]) < 1)
+                {
+                    Debug.Log("No one is following [" + thisUsername + "]");
+                    menu.noFollowersText.enabled = true;
+                }
+                else
+                {
+                    menu.noFollowersText.enabled = false;
+
+                    for (int i = 1; i < words.Length - 1; i++)
+                    {
+                        Debug.Log("Follower #" + i + ": " + words[i]);
+                        Debug.Log("Does [" + checkUsername + "] == " + "[" + words[i] + "]?");
+
+                        if (!menu.isFollowing)
+                            if (checkUsername == words[i])
+                            {
+                                Debug.Log("Setting isFollowing to true!");
+                                // Set some match variable equal to true
+                                menu.isFollowing = true;
+                            }
+                    }
+
+                    //if (checkUsername == null)
+                    // Set some match variable equal to false
+                    //menu.isFollowing = false;
+
+                    if (menu.followersPanel.activeSelf)
+                    {
+                        Debug.Log("Displaying a list of the people that [" + thisUsername + "] is following...");
+                        GameObject followers = GameObject.Find("Followers Panel");
+                        //get 6 recent chirppers and add them to the panel
+
+                        //Removes previous old chirppers
+                        /*if (followers.transform.Find("followers1") != null)
+                            Destroy(followers.transform.Find("followers1").gameObject);
+                        if (followers.transform.Find("followers2") != null)
+                            Destroy(followers.transform.Find("followers2").gameObject);
+                        if (followers.transform.Find("followers3") != null)
+                            Destroy(followers.transform.Find("followers3").gameObject);
+                        if (followers.transform.Find("followers4") != null)
+                            Destroy(followers.transform.Find("followers4").gameObject);
+                        if (followers.transform.Find("followers5") != null)
+                            Destroy(followers.transform.Find("followers5").gameObject);
+                        if (followers.transform.Find("followers6") != null)
+                            Destroy(followers.transform.Find("followers6").gameObject);*/
+
+                        if (followers.transform.Find("following1") != null)
+                        {
+                            Debug.Log("Destroying old chirpper list...");
+
+                            Destroy(followers.transform.Find("followers1").gameObject);
+                            Destroy(followers.transform.Find("followers2").gameObject);
+                            Destroy(followers.transform.Find("followers3").gameObject);
+                            Destroy(followers.transform.Find("followers4").gameObject);
+                            Destroy(followers.transform.Find("followers5").gameObject);
+                            Destroy(followers.transform.Find("followers6").gameObject);
+                        }
+
+                        //loop a max of 6 times
+                        int loop = 0;
+
+                        if (words.Length > 5)
+                            loop = 6;
+                        else
+                            loop = words.Length - 1;
+
+                        for (int i = 1; i < loop; i++)
+                        {
+                            Debug.Log("Following #" + i + ": " + words[i]);
+                            Vector3 newPos = followers.transform.position;
+
+                            // Chirpper #1 (-70, 2)     Chirpper #2 (203, 2)
+                            // Chirpper #3 (-70, -66)   Chirpper #4 (203, -66)
+                            // Chirpper #5 (-70, -135)  Chirpper #6 (203, -135)
+                            switch (i)
+                            {
+                                // Chirpper #1 Position
+                                case 1:
+                                    {
+                                        newPos.x = -70;
+                                        newPos.y = 2;
+                                        break;
+                                    }
+                                // Chirpper #2 Position
+                                case 2:
+                                    {
+                                        newPos.x = 203;
+                                        newPos.y = 2;
+                                        break;
+                                    }
+                                // Chirpper #3 Position
+                                case 3:
+                                    {
+                                        newPos.x = -70;
+                                        newPos.y = -66;
+                                        break;
+                                    }
+                                // Chirpper #4 Position
+                                case 4:
+                                    {
+                                        newPos.x = 203;
+                                        newPos.y = -66;
+                                        break;
+                                    }
+                                // Chirpper #5 Position
+                                case 5:
+                                    {
+                                        newPos.x = -70;
+                                        newPos.y = -135;
+                                        break;
+                                    }
+                                // Chirpper #6 Position
+                                case 6:
+                                    {
+                                        newPos.x = 203;
+                                        newPos.y = -135;
+                                        break;
+                                    }
+                                // Default to the first position
+                                default:
+                                    {
+                                        newPos.x = -70;
+                                        newPos.y = 2;
+                                        break;
+                                    }
+                            }
+                            //newPos.y = 2 - ((i / 4) * 75);
+                            //Debug.Log("X-POS: " + newPos.x + " Y-POS: " + newPos.y);
+                            GameObject temp = Instantiate(chirpperPrefab, newPos, Quaternion.identity) as GameObject;
+                            temp.transform.position = newPos;
+                            temp.transform.SetParent(followers.transform, false);
+                            temp.name = "followers" + i;
+                            ChirpperInfo ci = temp.GetComponent<ChirpperInfo>();
+
+                            ci.username.text = words[i];
+                            ci.description.text = "This is a small sample of some description text...";
+                            ci.time.text = "00:14";
+                            ci.addUnfollowButtonFunction();
+                        }
+                    }
+                }
+
+                //print(download.text);
+                //test.text = download.text;
+            }
+        }
+        else
+        {
+            Debug.Log("Must be logged in to see the people who are following you.");
+        }
 	}
 
 	public IEnumerator getFollowing(string thisUsername, string checkUsername) {
@@ -407,6 +570,7 @@ public class MyNetwork : MonoBehaviour {
                 }
 
                 Debug.Log("Number of people [" + thisUsername + "] is Following: " + words[0]);
+                menu.SetUserInfo(words[0], "nc", "nc");
 
                 if (Convert.ToInt32(words[0]) < 1)
                 {

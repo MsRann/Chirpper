@@ -59,6 +59,10 @@ public class MainMenuGUI : MonoBehaviour {
     public Text numberOfFollowing;
     public Text noFollowingText;
 
+    // For Followers Panel
+    public Text numberOfFollowers;
+    public Text noFollowersText;
+
     public Text createNewUsername;
 
 	public GameObject meowingSFX;
@@ -452,6 +456,10 @@ public class MainMenuGUI : MonoBehaviour {
         recentChirpsPanel.SetActive(false);
         myChirpsPanel.SetActive(false);
         loginFailedPanel.SetActive(false);
+
+        string temp = currentUsername.text.Remove(0, 1);
+        StartCoroutine(myNetwork.getFollowers(temp, null));
+        numberOfFollowers.text = "Followers:  " + currentFollowersText.text + " Chirppers";
     }
 
 	public void DisplayLoginPanel()
