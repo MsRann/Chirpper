@@ -30,6 +30,7 @@ public class MyNetwork : MonoBehaviour {
     public bool isLoggedIn = false;
 
 	public GameObject chirpPrefab;
+    public GameObject chirpperPrefab;
 
 	public Button uploadPicture;
 
@@ -46,7 +47,7 @@ public class MyNetwork : MonoBehaviour {
 	
 	public IEnumerator followUser(string username, string followUsername) {
 		WWWForm form = new WWWForm();
-		form.AddField("username", username );
+		form.AddField("username", username);
         form.AddField("follow", followUsername);
 		WWW download = new WWW( url, form );
 		
@@ -55,8 +56,14 @@ public class MyNetwork : MonoBehaviour {
 		if(!string.IsNullOrEmpty(download.error)) {
 			print( "Error downloading: " + download.error );
 		} else {
-			print(download.text);
-			test.text = download.text;
+
+            string[] words = download.text.Split(delim, System.StringSplitOptions.None);
+
+            Debug.Log("[" + username + "] has started following: [" + followUsername + "]");
+            menu.SetUserInfo(words[0], "nc", "nc");
+            menu.previewFollowText.text = "Unfollow";
+			//print(download.text);
+			//test.text = download.text;
 		}
 	}
 
@@ -370,16 +377,16 @@ public class MyNetwork : MonoBehaviour {
 			//gets results and stores them into string array split with delimiter \\
 			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
 			for (int i = 0; i < words.Length; i ++){
-				print(i + ": " + words[i]);
+				//print(i + ": " + words[i]);
 			}
 			//print(download.text);
 			//test.text = download.text;
 		}
 	}
 
-	IEnumerator getFollowing() {
+	public IEnumerator getFollowing(string thisUsername, string checkUsername) {
 		WWWForm form = new WWWForm();
-		form.AddField( "getFollowing", username );
+        form.AddField("getFollowing", thisUsername);
 		WWW download = new WWW( url, form );
 		yield return download;
 		
@@ -389,8 +396,69 @@ public class MyNetwork : MonoBehaviour {
 			//gets results and stores them into string array split with delimiter \\
 			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
 			for (int i = 0; i < words.Length; i ++){
-				print(i + ": " + words[i]);
+				//print(i + ": " + words[i]);
 			}
+
+            Debug.Log("Number of people [" + thisUsername + "] is Following: " + words[0]);
+
+            if (Convert.ToInt32(words[0]) < 1)
+            {
+                Debug.Log("[" + thisUsername + "] is not following anyone.");
+            }
+            else
+            {
+                for (int i = 1; i < words.Length - 1; i++)
+                {
+                    Debug.Log("Following #" + i + ": " + words[i]);
+                    Debug.Log("Does [" + checkUsername + "] == " + "[" + words[i] + "]?");
+
+                    if (!menu.isFollowing)
+                        if (checkUsername == words[i])
+                        {
+                            Debug.Log("Setting isFollowing to true!");
+                            // Set some match variable equal to true
+                            menu.isFollowing = true;
+                        }   
+                }
+
+                //if (checkUsername == null)
+                    // Set some match variable equal to false
+                    //menu.isFollowing = false;
+
+                if (menu.followingPanel.activeSelf)
+                {
+                    GameObject following = GameObject.Find("Following Panel");
+                    //get 6 recent chirppers and add them to the panel
+
+                    //Removes previous old chirps
+                    if (following.transform.Find("following0") != null)
+                    {
+                        Destroy(following.transform.Find("following0").gameObject);
+                        Destroy(following.transform.Find("following1").gameObject);
+                        Destroy(following.transform.Find("following2").gameObject);
+                    }
+                    //loop a max of 6 times
+                    int loop = 6;
+
+
+                    for (int i = 0; i < loop; i++)
+                    {
+                        Vector3 newPos = following.transform.position;
+                        newPos.y = 2 - ((i / 4) * 75);
+                        GameObject temp = Instantiate(chirpperPrefab, newPos, Quaternion.identity) as GameObject;
+                        temp.transform.position = newPos;
+                        temp.transform.SetParent(following.transform, false);
+                        temp.name = "following" + i;
+                        ChirpperInfo ci = temp.GetComponent<ChirpperInfo>();
+
+                        ci.username.text = words[i + 1];
+                        ci.description.text = "This is a small sample of some description text...";
+                        ci.time.text = "00:14";
+                        ci.addUnfollowButtonFunction();
+                    }
+                }
+            }
+            
 			//print(download.text);
 			//test.text = download.text;
 		}
@@ -724,7 +792,7 @@ public class MyNetwork : MonoBehaviour {
 		}
 	}
 
-	IEnumerator wait(int seconds){
+	public IEnumerator wait(int seconds){
 		yield return new WaitForSeconds (seconds);
 	}
 

@@ -47,7 +47,12 @@ public class MainMenuGUI : MonoBehaviour {
     // For User Preview Panel
     public Text previewUsername;
     public RawImage previewImage;
+    public Button previewFollowButton;
+    public Text previewFollowText;
     string lastPanel = "";
+
+    // For Following Buttons
+    public bool isFollowing = false;
 
     public Text createNewUsername;
 
@@ -126,11 +131,31 @@ public class MainMenuGUI : MonoBehaviour {
         createNewUsername.text = "@" + newUsername.text;
 	}
 
+    // For Following Users
+    public void ClickPreviewFollowUser()
+    {
+        string temp1 = currentUsername.text.Remove(0, 1);
+        string temp2 = previewUsername.text.Remove(0, 1);
+
+        StartCoroutine(myNetwork.followUser(temp1, temp2));
+    }
+
     // For User Preview Panel
     public void DisplayUserPreviewPanel(string username, RawImage profileImage)
     {
         Debug.Log("Displaying User Preview Panel...");
         Debug.Log("Previewing username: " + username);
+
+        string temp = currentUsername.text.Remove(0, 1);
+
+        StartCoroutine(myNetwork.getFollowing(temp, username));
+
+        Debug.Log("Is Following: " + isFollowing);
+
+        if (isFollowing)
+            previewFollowText.text = "Unfollow";
+        else
+            previewFollowText.text = "Follow";
 
         previewUsername.text = "@" + username;
         previewImage = profileImage;
@@ -210,11 +235,23 @@ public class MainMenuGUI : MonoBehaviour {
     public void SetUserInfo(string following, string followers, string chirps)
     {
         if (following != "nc")
+        {
+            Debug.Log("Setting Following to: " + following);
             currentFollowingText.text = following;
+        }
+  
         if (followers != "nc")
+        {
+            Debug.Log("Setting Followers to: " + followers);
             currentFollowersText.text = followers;
+        }
+            
         if (chirps != "nc")
+        {
+            Debug.Log("Setting Posts to: " + chirps);
             currentChirpsText.text = chirps;
+        }
+            
     }
 
     public void LoginUser()
