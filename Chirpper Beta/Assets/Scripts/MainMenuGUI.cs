@@ -24,6 +24,7 @@ public class MainMenuGUI : MonoBehaviour {
     public GameObject userPreviewPanel;
     public GameObject loggedOutPanel;
     public GameObject blackoutPanel;
+    public GameObject mustBeLoggedInPanel;
 
     // For Sign Up Panel
     public InputField newEmailAddress;
@@ -101,6 +102,7 @@ public class MainMenuGUI : MonoBehaviour {
         userPreviewPanel.SetActive(false);
         loggedOutPanel.SetActive(true);
         blackoutPanel.SetActive(false);
+        mustBeLoggedInPanel.SetActive(false);
 
         networkObject = GameObject.FindGameObjectWithTag("Network");
         myNetwork = networkObject.GetComponent<MyNetwork>();
@@ -137,10 +139,52 @@ public class MainMenuGUI : MonoBehaviour {
     // For Following Users
     public void ClickPreviewFollowUser()
     {
-        string temp1 = currentUsername.text.Remove(0, 1);
-        string temp2 = previewUsername.text.Remove(0, 1);
+        if (myNetwork.isLoggedIn)
+        {
+            string temp1 = currentUsername.text.Remove(0, 1);
+            string temp2 = previewUsername.text.Remove(0, 1);
 
-        StartCoroutine(myNetwork.followUser(temp1, temp2));
+            StartCoroutine(myNetwork.followUser(temp1, temp2));
+        }
+        else
+        {
+            DisplayMustBeLoggedInPanel();
+        }
+    }
+
+    // For Must Be Logged In Panel
+    public void DisplayMustBeLoggedInPanel()
+    {
+        Debug.Log("Displaying Must Be Logged In Panel...");
+        mustBeLoggedInPanel.SetActive(true);
+        userPreviewPanel.SetActive(false);
+
+        if (loginPanel.activeSelf)
+        {
+            loginPanel.SetActive(false);
+            lastPanel = "loginPanel";
+        }
+        else if (signUpPanel.activeSelf)
+        {
+            signUpPanel.SetActive(false);
+            lastPanel = "signUpPanel";
+        }
+        
+        loggedOutPanel.SetActive(false);
+    }
+
+    public void CloseMustBeLoggedInPanel()
+    {
+        Debug.Log("Closing Must Be Logged In Panel");
+        mustBeLoggedInPanel.SetActive(false);
+
+        if (lastPanel == "loginPanel")
+            loginPanel.SetActive(true);
+        else if (lastPanel == "signUpPanel")
+            signUpPanel.SetActive(true);
+
+        loggedOutPanel.SetActive(true);
+        recentChirpsPanel.SetActive(true);
     }
 
     // For User Preview Panel
