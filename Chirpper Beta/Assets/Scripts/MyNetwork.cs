@@ -1412,8 +1412,17 @@ public class MyNetwork : MonoBehaviour {
 		refreshMyChirps ();
 		refreshFollowingChirps ();
 		refreshRecentChirps ();
-
 	}
+
+    public void refreshFollowingPanel()
+    {
+        StartCoroutine(getFollowing(menu.currentUsername.text, null));
+    }
+
+    public void refreshFollowersPanel()
+    {
+        StartCoroutine(getFollowers(menu.currentUsername.text, null));
+    }
 	
 //	public IEnumerator sendProfilePicture() {
 //		string pathname = EditorUtility.OpenFilePanel("Load file","","*.png,*.jpg");
