@@ -254,6 +254,7 @@ public class MainMenuGUI : MonoBehaviour {
         loggedInPanel.SetActive(false);
         loggedOutPanel.SetActive(false);
         postChirpsPanel.SetActive(false);
+        homeButtonPanel.SetActive(false);
 
         if (followingPanel.activeSelf) {
 			followingPanel.SetActive (false);
@@ -288,6 +289,7 @@ public class MainMenuGUI : MonoBehaviour {
         {
             loggedInPanel.SetActive(true);
             postChirpsPanel.SetActive(true);
+            homeButtonPanel.SetActive(true);
         }
         
 		searchField.SetActive (true);
