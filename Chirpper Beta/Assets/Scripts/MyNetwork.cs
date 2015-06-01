@@ -628,6 +628,8 @@ public class MyNetwork : MonoBehaviour {
 //                        else
 //                            loop = words.Length - 1;
 
+                        int index = 1;
+
 						for (int i = 1; i < Convert.ToInt32(words[0])*2; i+=2)
                         {
                             Debug.Log("Following #" + i + ": " + words[i]);
@@ -636,7 +638,7 @@ public class MyNetwork : MonoBehaviour {
                             // Chirpper #1 (-70, 2)     Chirpper #2 (203, 2)
                             // Chirpper #3 (-70, -66)   Chirpper #4 (203, -66)
                             // Chirpper #5 (-70, -135)  Chirpper #6 (203, -135)
-                            switch (i)
+                            switch (index)
                             {
                                 // Chirpper #1 Position
                                 case 1:
@@ -688,6 +690,9 @@ public class MyNetwork : MonoBehaviour {
                                         break;
                                     }
                             }
+
+                            index++;
+
                             //newPos.y = 2 - ((i / 4) * 75);
                             //Debug.Log("X-POS: " + newPos.x + " Y-POS: " + newPos.y);
                             GameObject temp = Instantiate(chirpperPrefab, newPos, Quaternion.identity) as GameObject;
