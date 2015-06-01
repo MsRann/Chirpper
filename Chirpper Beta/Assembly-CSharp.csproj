@@ -48,6 +48,7 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\AudioRecorder.cs" />
      <Compile Include="Assets\Scripts\ChirpInfo.cs" />
+     <Compile Include="Assets\Scripts\ChirpperInfo.cs" />
      <Compile Include="Assets\Scripts\CreatePost.cs" />
      <Compile Include="Assets\Scripts\MainMenuGUI.cs" />
      <Compile Include="Assets\Scripts\MyNetwork.cs" />

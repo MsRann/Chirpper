@@ -25,6 +25,8 @@ public class MainMenuGUI : MonoBehaviour {
     public GameObject loggedOutPanel;
     public GameObject blackoutPanel;
     public GameObject mustBeLoggedInPanel;
+	public GameObject searchPanel;
+	public GameObject searchField;
 
     // For Sign Up Panel
     public InputField newEmailAddress;
@@ -65,6 +67,8 @@ public class MainMenuGUI : MonoBehaviour {
 
     public Text createNewUsername;
 
+	public Text searchText;
+
 	public GameObject meowingSFX;
 	public Button playButton;
 	public Sprite pauseSprite;
@@ -103,7 +107,8 @@ public class MainMenuGUI : MonoBehaviour {
         newAccountFailedPanel.SetActive(false);
         passwordMismatchPanel.SetActive(false);
         addAccountFailedPanel.SetActive(false);
-        homeButtonPanel.SetActive(false);
+		homeButtonPanel.SetActive(false);
+		searchPanel.SetActive(false);
         userPreviewPanel.SetActive(false);
         loggedOutPanel.SetActive(true);
         blackoutPanel.SetActive(false);
@@ -402,18 +407,32 @@ public class MainMenuGUI : MonoBehaviour {
         loginFailedPanel.SetActive(true);
     }
 
-    public void DisplayRecentChirpsPanel()
-    {
-        followingPanel.SetActive(false);
-        followersPanel.SetActive(false);
-        homeChirpsPanel.SetActive(false);
-        recentChirpsPanel.SetActive(true);
-        myChirpsPanel.SetActive(false);
-        loginFailedPanel.SetActive(false);
-    }
+	public void DisplaySearchPanel()
+	{
+		StartCoroutine (myNetwork.search(searchText.text));
+		searchPanel.SetActive (true);
+		followingPanel.SetActive(false);
+		followersPanel.SetActive(false);
+		homeChirpsPanel.SetActive(false);
+		recentChirpsPanel.SetActive(false);
+		myChirpsPanel.SetActive(false);
+		loginFailedPanel.SetActive(false);
+	}
+
+	public void DisplayRecentChirpsPanel()
+	{
+		searchPanel.SetActive (false);
+		followingPanel.SetActive(false);
+		followersPanel.SetActive(false);
+		homeChirpsPanel.SetActive(false);
+		recentChirpsPanel.SetActive(true);
+		myChirpsPanel.SetActive(false);
+		loginFailedPanel.SetActive(false);
+	}
 
     public void DisplayHomeChirpsPanel()
     {
+		searchPanel.SetActive (false);
         followingPanel.SetActive(false);
         followersPanel.SetActive(false);
         homeChirpsPanel.SetActive(true);
@@ -425,6 +444,7 @@ public class MainMenuGUI : MonoBehaviour {
 
     public void DisplayMyChirpsPanel()
     {
+		searchPanel.SetActive (false);
 		StartCoroutine (myNetwork.getChirps(currentUsername.text.Substring(1)));
         followingPanel.SetActive(false);
         followersPanel.SetActive(false);
@@ -436,6 +456,7 @@ public class MainMenuGUI : MonoBehaviour {
 
     public void DisplayFollowingPanel()
     {
+		searchPanel.SetActive (false);
         followingPanel.SetActive(true);
         followersPanel.SetActive(false);
         recentChirpsPanel.SetActive(false);
@@ -450,6 +471,7 @@ public class MainMenuGUI : MonoBehaviour {
 
     public void DisplayFollowersPanel()
     {
+		searchPanel.SetActive (false);
         followersPanel.SetActive(true);
         followingPanel.SetActive(false);
         homeChirpsPanel.SetActive(false);
@@ -479,6 +501,7 @@ public class MainMenuGUI : MonoBehaviour {
 
 	public void DisplayLoggedInPanel()
 	{
+		searchPanel.SetActive (false);
 		currentUsername.text = "@" + oldUsername.text;
         Debug.Log("Welcome Back, " + currentUsername.text + "!");
 		loggedInPanel.SetActive(true);
@@ -491,6 +514,7 @@ public class MainMenuGUI : MonoBehaviour {
 
     public void DisplayNewUserLoggedInPanel()
     {
+		searchPanel.SetActive (false);
         currentUsername.text = "@" + newUsername.text;
         Debug.Log("Welcome to Chirpper, " + currentUsername.text);
         loggedInPanel.SetActive(true);

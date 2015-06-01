@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEditor;
+//using UnityEditor;
 using System.Collections;
 using System.Linq;
 using System.IO;
@@ -15,29 +15,32 @@ public class MyNetwork : MonoBehaviour {
     string password;
     string email;
     static string cookie = "";
-    string searchField="Search!";
     string follow="Enter a User To Follow!";
-	Text test;
 	bool signedUp = false;
 	static string[] delim = {"\\"};
 	public Button playingButton;
 	public Sprite stopImage;
+	public Sprite loadingImage;
 	public AudioSource source;
 	bool isLoading = false;
     GameObject menuGUI;
     MainMenuGUI menu;
 
     public bool isLoggedIn = false;
+	public IEnumerator streamCoroutine;
 
 	public GameObject chirpPrefab;
     public GameObject chirpperPrefab;
 
+	public RawImage myProfilePicture;
 	public Button uploadPicture;
+	public GameObject searchField;
+
+	public Text searchText;
 
 	void Start () 
     {
 		source = gameObject.AddComponent<AudioSource> ();
-		test =  GameObject.Find("Text").GetComponent<Text>();
 
         menuGUI = GameObject.FindGameObjectWithTag("Menu");
         menu = menuGUI.GetComponent<MainMenuGUI>();
@@ -62,23 +65,178 @@ public class MyNetwork : MonoBehaviour {
             Debug.Log("[" + username + "] has started following: [" + followUsername + "]");
             menu.SetUserInfo(words[0], "nc", "nc");
             menu.previewFollowText.text = "Unfollow";
-			//print(download.text);
-			//test.text = download.text;
 		}
 	}
 
-	IEnumerator search(string search) {
+	public IEnumerator search(string search) {
+//		RectTransform tempPosition = searchField.GetComponent<RectTransform>();
+//		//tempPosition.x += 1.0f;
+//		searchField.GetComponent<RectTransform>().x = tempPosition.x;
+
 		WWWForm form = new WWWForm();
+		if (isLoggedIn) {
+			form.AddField("username",menu.currentUsername.text.Substring(1));
+		}
 		form.AddField( "search", search );
 		WWW download = new WWW( url, form );
 		
 		yield return download;
 		
-		if(!string.IsNullOrEmpty(download.error)) {
-			print( "Error downloading: " + download.error );
+		if (!string.IsNullOrEmpty (download.error)) {
+			print ("Error downloading: " + download.error);
 		} else {
-			print(download.text);
-			test.text = download.text;
+		
+			print("Raw Search Output:" + download.text);
+			GameObject searchPanel = GameObject.Find ("Search Panel");
+			//get 6 recent chirppers and add them to the panel
+			if (searchPanel != null) {
+				//Removes previous old searched users
+				if (searchPanel.transform.Find ("searchUser1") != null)
+					Destroy (searchPanel.transform.Find ("searchUser1").gameObject);
+				if (searchPanel.transform.Find ("searchUser2") != null)
+					Destroy (searchPanel.transform.Find ("searchUser2").gameObject);
+
+				//found chirps
+				if (searchPanel.transform.Find ("searchChirp1") != null)
+					Destroy (searchPanel.transform.Find ("searchChirp1").gameObject);
+				if (searchPanel.transform.Find ("searchChirp2") != null)
+					Destroy (searchPanel.transform.Find ("searchChirp2").gameObject);
+				if (searchPanel.transform.Find ("searchChirp3") != null)
+					Destroy (searchPanel.transform.Find ("searchChirp3").gameObject);
+				if (searchPanel.transform.Find ("searchChirp4") != null)
+					Destroy (searchPanel.transform.Find ("searchChirp4").gameObject);
+				if (searchPanel.transform.Find ("searchChirp5") != null)
+					Destroy (searchPanel.transform.Find ("searchChirp5").gameObject);
+				if (searchPanel.transform.Find ("searchChirp6") != null)
+					Destroy (searchPanel.transform.Find ("searchChirp6").gameObject);
+
+			}
+			int iter = 0;
+			int userNum = 0;
+			int chirpNum = 0;
+			string[] words = download.text.Split(delim, System.StringSplitOptions.None);
+			searchPanel.transform.Find ("Chirps").gameObject.SetActive(false);
+			searchPanel.transform.Find ("Users").gameObject.SetActive(false);
+			if (words.Length == 1){
+				
+				searchText.text = "No Results Found";
+			}else{
+				searchText.text = "";
+			}
+			while(iter < words.Length){
+				if (words[iter] == "user"){
+					searchPanel.transform.Find ("Users").gameObject.SetActive(true);
+					Vector3 newPos = searchPanel.transform.position;
+					
+					// Chirpper #1 (-70, 2)     Chirpper #2 (203, 2)
+					switch (userNum)
+					{
+						// Chirpper #1 Position
+					case 0:
+					{
+						newPos.x = -70;
+						newPos.y = 2;
+						break;
+					}
+						// Chirpper #2 Position
+					case 1:
+					{
+						newPos.x = 203;
+						newPos.y = 2;
+						break;
+					}
+				}
+				GameObject temp = Instantiate(chirpperPrefab, newPos, Quaternion.identity) as GameObject;
+				temp.transform.position = newPos;
+				temp.transform.SetParent(searchPanel.transform, false);
+				temp.name = "searchUser" + (userNum+1);
+				ChirpperInfo ci = temp.GetComponent<ChirpperInfo>();
+
+				
+				ci.username.text = words[iter+1];
+				ci.description.text = "This is a small sample of some description text...";
+				ci.time.text = "00:14";
+
+				//set follow / unfollow NEEDS IMPLEMENTATION
+					if (isLoggedIn){
+						ci.addUnfollowButtonFunction();
+						ci.addFollowButtonFunction();
+
+						if (words[iter+2] == "false"){
+							temp.transform.Find("Follow Button").gameObject.SetActive(true);
+						}else{
+							temp.transform.Find("Unfollow Button").gameObject.SetActive(true);
+						}
+
+					}else{
+						temp.transform.Find("Unfollow Button").gameObject.SetActive(true);
+						temp.transform.Find("Unfollow Button").transform.Find("Text").GetComponent<Text>().text = "Login First!";
+					}
+
+					iter+=3;
+					userNum++;
+				}else if (words[iter] == "chirp"){
+					Vector3 newPos = searchPanel.transform.position;
+					if (userNum != 0){
+						searchPanel.transform.Find ("Chirps").gameObject.SetActive(true);
+					}
+					switch (chirpNum)
+					{
+						// Chirpper #1 Position
+					case 0:
+					{
+						newPos.x = -8;
+						newPos.y = -72;
+						break;
+					}
+						// Chirpper #2 Position
+					case 1:
+					{
+						newPos.x = -8;
+						newPos.y = -143;
+						break;
+					}
+						// Chirpper #3 Position
+					case 2:
+					{
+						newPos.x = -8;
+						newPos.y = 0;
+						break;
+					}
+					}
+
+					GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
+					temp.transform.position = newPos;
+					temp.transform.SetParent (searchPanel.transform,false);
+					temp.name = "searchChirp" + (chirpNum+1);
+					ChirpInfo ci = temp.GetComponent<ChirpInfo>();
+					
+					DateTime dt = Convert.ToDateTime(words[iter+5]); // THIS LINE IS CAUSING AN ERROR
+					if ((DateTime.Now - dt).TotalDays >= 1){
+						ci.timestamp.text = dt.ToString ("MMM") + " " + dt.Day ;
+					}else if ((int)(Math.Round ((DateTime.Now - dt).TotalHours)) > 0){
+						ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalHours)) + " hr ago";
+					}else{
+						ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalMinutes)) + " min ago";
+					}
+					
+					ci.id = int.Parse(words[iter+1]);
+					ci.username.text = words[iter+2];
+					ci.title.text = words[iter+3];
+					ci.timer.text = "00:";
+					ci.timer.text += int.Parse (words[iter+4]) < 10? "0" + words[iter+4]:words[iter+4];
+					ci.addButtonFunction();
+
+					iter+=6;
+					chirpNum++;
+					if ((chirpNum == 2 && userNum != 0) || (userNum == 0 && chirpNum == 3)){
+						break;
+					}
+				}else{
+					iter++;
+				}
+				print("iter:" + iter);
+			}
 		}
 	}
 
@@ -102,28 +260,6 @@ public class MyNetwork : MonoBehaviour {
 		}
 	}
 
-	/*IEnumerator signUp() {
-		WWWForm form = new WWWForm();
-		form.AddField( "signUp", "true" );	
-		form.AddField( "username", username );
-		form.AddField( "password", password );
-		form.AddField( "email", email );	
-		form.AddField( "name", name );	
-		WWW download = new WWW( url, form );
-		
-		yield return download;
-		
-		if(!string.IsNullOrEmpty(download.error)) {
-			print( "Error downloading: " + download.error );
-		} else {
-			if(download.responseHeaders.ContainsKey("SET-COOKIE")){
-				cookie = download.responseHeaders["SET-COOKIE"];
-                signedUp = false;
-			}
-			print(download.text);
-			test.text = download.text;	
-		}
-	}*/
 
     public IEnumerator createAccount(string newEmail, string newPassword)
     {
@@ -284,6 +420,10 @@ public class MyNetwork : MonoBehaviour {
         }
     }
 
+	public void refreshMyChirps(){
+	
+		StartCoroutine (getChirps(menu.currentUsername.text.Substring(1)));
+	}
 
 	public IEnumerator getChirps(string username) {
 		WWWForm form = new WWWForm();
@@ -299,41 +439,49 @@ public class MyNetwork : MonoBehaviour {
 			//gets results and stores them into string array split with delimiter \\
 			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
 			//get 3 recent chirps and add them to the panel
-			
-			//Removes previous old chirps
-			if(recentChirps.transform.Find("myChirp0")!= null){
-				Destroy(recentChirps.transform.Find("myChirp0").gameObject);
-				Destroy(recentChirps.transform.Find("myChirp4").gameObject);
-				Destroy(recentChirps.transform.Find("myChirp8").gameObject);
-			}
-			//loop a max of 3 times
-			int loop = words.Length >= 12? 12: words.Length;
-			
-			
-			for (int i = 0; i < loop; i+=4){
-				Vector3 newPos = recentChirps.transform.position;
-				newPos.y = 2 - ((i/4)*75);
-				GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
-				temp.transform.position = newPos;
-				temp.transform.SetParent (recentChirps.transform,false);
-				temp.name = "myChirp" + i;
-				ChirpInfo ci = temp.GetComponent<ChirpInfo>();
+			if (recentChirps != null){
 				
-				DateTime dt = Convert.ToDateTime(words[i+3]); // THIS LINE IS CAUSING AN ERROR
-				if ((DateTime.Now - dt).TotalDays >= 1){
-					ci.timestamp.text = dt.ToString ("MMM") + " " + dt.Day ;
-				}else if ((DateTime.Now - dt).TotalHours > 0){
-					ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalHours)) + " hr ago";
-				}else{
-					ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalMinutes)) + " min ago";
+				//Removes previous old chirps
+				if(recentChirps.transform.Find("myChirp0")!= null){
+					Destroy(recentChirps.transform.Find("myChirp0").gameObject);
 				}
+				if(recentChirps.transform.Find("myChirp4")!= null){
+					Destroy(recentChirps.transform.Find("myChirp4").gameObject);
+				}			
+				if(recentChirps.transform.Find("myChirp8")!= null){
+					Destroy(recentChirps.transform.Find("myChirp8").gameObject);
+				}
+				//loop a max of 3 times
+				int loop = words.Length >= 12? 12: words.Length;
 				
-				ci.id = int.Parse(words[i]);
-				//ci.username.text = words[i+1];
-				ci.title.text = words[i+1];
-				ci.timer.text = "00:";
-				ci.timer.text += int.Parse (words[i+2]) < 10? "0" + words[i+2]:words[i+2];
-				ci.addButtonFunction();
+				if (words.Length != 1){
+					for (int i = 0; i < loop; i+=4){
+						Vector3 newPos = recentChirps.transform.position;
+						newPos.y = 2 - ((i/4)*75);
+						GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
+						temp.transform.position = newPos;
+						temp.transform.SetParent (recentChirps.transform,false);
+						temp.name = "myChirp" + i;
+						ChirpInfo ci = temp.GetComponent<ChirpInfo>();
+						
+						DateTime dt = Convert.ToDateTime(words[i+3]); 
+						if ((DateTime.Now - dt).TotalDays >= 1){
+							ci.timestamp.text = dt.ToString ("MMM") + " " + dt.Day ;
+						}else if ((int)(Math.Round ((DateTime.Now - dt).TotalHours)) > 0){
+							ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalHours)) + " hr ago";
+						}else{
+							ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalMinutes)) + " min ago";
+						}
+						
+						ci.id = int.Parse(words[i]);
+						ci.username.text = username;
+						ci.title.text = words[i+1];
+						ci.timer.text = "00:";
+						ci.timer.text += int.Parse (words[i+2]) < 10? "0" + words[i+2]:words[i+2];
+						ci.addButtonFunction();
+						ci.profilePicture.texture = myProfilePicture.texture;
+					}
+				 }
 			}
 				
 				
@@ -361,10 +509,6 @@ public class MyNetwork : MonoBehaviour {
 //						//result(www.texture);
 //					}
 //				}
-
-
-			print(download.text);
-			test.text = download.text;
 		}
 	}
 
@@ -393,6 +537,25 @@ public class MyNetwork : MonoBehaviour {
 
                 Debug.Log("Number of people following [" + thisUsername + "]: " + words[0]);
                 menu.SetUserInfo("nc", words[0], "nc");
+
+				GameObject followers = GameObject.Find("Followers Panel");
+				//get 6 recent chirppers and add them to the panel
+				if (followers != null){
+					//Removes previous old chirppers
+					if (followers.transform.Find("followers1") != null)
+						Destroy(followers.transform.Find("followers1").gameObject);
+					if (followers.transform.Find("followers2") != null)
+						Destroy(followers.transform.Find("followers2").gameObject);
+					if (followers.transform.Find("followers3") != null)
+						Destroy(followers.transform.Find("followers3").gameObject);
+					if (followers.transform.Find("followers4") != null)
+						Destroy(followers.transform.Find("followers4").gameObject);
+					if (followers.transform.Find("followers5") != null)
+						Destroy(followers.transform.Find("followers5").gameObject);
+					if (followers.transform.Find("followers6") != null)
+						Destroy(followers.transform.Find("followers6").gameObject);
+				}
+
 
                 if (Convert.ToInt32(words[0]) < 1)
                 {
@@ -424,44 +587,17 @@ public class MyNetwork : MonoBehaviour {
                     if (menu.followersPanel.activeSelf)
                     {
                         Debug.Log("Displaying a list of the people that [" + thisUsername + "] is following...");
-                        GameObject followers = GameObject.Find("Followers Panel");
-                        //get 6 recent chirppers and add them to the panel
 
-                        //Removes previous old chirppers
-                        /*if (followers.transform.Find("followers1") != null)
-                            Destroy(followers.transform.Find("followers1").gameObject);
-                        if (followers.transform.Find("followers2") != null)
-                            Destroy(followers.transform.Find("followers2").gameObject);
-                        if (followers.transform.Find("followers3") != null)
-                            Destroy(followers.transform.Find("followers3").gameObject);
-                        if (followers.transform.Find("followers4") != null)
-                            Destroy(followers.transform.Find("followers4").gameObject);
-                        if (followers.transform.Find("followers5") != null)
-                            Destroy(followers.transform.Find("followers5").gameObject);
-                        if (followers.transform.Find("followers6") != null)
-                            Destroy(followers.transform.Find("followers6").gameObject);*/
 
-                        if (followers.transform.Find("following1") != null)
-                        {
-                            Debug.Log("Destroying old chirpper list...");
+//                        //loop a max of 6 times
+//                        int loop = 0;
+//
+//                        if (words.Length > 5)
+//                            loop = 6;
+//                        else
+//                            loop = words.Length - 1;
 
-                            Destroy(followers.transform.Find("followers1").gameObject);
-                            Destroy(followers.transform.Find("followers2").gameObject);
-                            Destroy(followers.transform.Find("followers3").gameObject);
-                            Destroy(followers.transform.Find("followers4").gameObject);
-                            Destroy(followers.transform.Find("followers5").gameObject);
-                            Destroy(followers.transform.Find("followers6").gameObject);
-                        }
-
-                        //loop a max of 6 times
-                        int loop = 0;
-
-                        if (words.Length > 5)
-                            loop = 6;
-                        else
-                            loop = words.Length - 1;
-
-                        for (int i = 1; i < loop; i++)
+						for (int i = 1; i < Convert.ToInt32(words[0])*2; i+=2)
                         {
                             Debug.Log("Following #" + i + ": " + words[i]);
                             Vector3 newPos = followers.transform.position;
@@ -532,13 +668,18 @@ public class MyNetwork : MonoBehaviour {
                             ci.username.text = words[i];
                             ci.description.text = "This is a small sample of some description text...";
                             ci.time.text = "00:14";
-                            ci.addUnfollowButtonFunction();
+							ci.addUnfollowButtonFunction();
+							ci.addFollowButtonFunction();
+
+							if(words[i+1] == "true"){
+								temp.transform.Find("Unfollow Button").gameObject.SetActive(true);
+							}else{
+								temp.transform.Find("Follow Button").gameObject.SetActive(true);
+							}
                         }
                     }
                 }
 
-                //print(download.text);
-                //test.text = download.text;
             }
         }
         else
@@ -572,6 +713,25 @@ public class MyNetwork : MonoBehaviour {
                 Debug.Log("Number of people [" + thisUsername + "] is Following: " + words[0]);
                 menu.SetUserInfo(words[0], "nc", "nc");
 
+				GameObject following = GameObject.Find("Following Panel");
+				//get 6 recent chirppers and add them to the panel
+				if (following != null){
+					//Removes previous old chirppers
+					if (following.transform.Find("following1") != null)
+						Destroy(following.transform.Find("following1").gameObject);
+					if (following.transform.Find("following2") != null)
+						Destroy(following.transform.Find("following2").gameObject);
+					if (following.transform.Find("following3") != null)
+						Destroy(following.transform.Find("following3").gameObject);
+					if (following.transform.Find("following4") != null)
+						Destroy(following.transform.Find("following4").gameObject);
+					if (following.transform.Find("following5") != null)
+						Destroy(following.transform.Find("following5").gameObject);
+					if (following.transform.Find("following6") != null)
+						Destroy(following.transform.Find("following6").gameObject);
+				}
+
+
                 if (Convert.ToInt32(words[0]) < 1)
                 {
                     Debug.Log("[" + thisUsername + "] is not following anyone.");
@@ -602,44 +762,15 @@ public class MyNetwork : MonoBehaviour {
                     if (menu.followingPanel.activeSelf)
                     {
                         Debug.Log("Displaying a list of the people that [" + thisUsername + "] is following...");
-                        GameObject following = GameObject.Find("Following Panel");
-                        //get 6 recent chirppers and add them to the panel
-
-                        //Removes previous old chirppers
-                        /*if (following.transform.Find("following1") != null)
-                            Destroy(following.transform.Find("following1").gameObject);
-                        if (following.transform.Find("following2") != null)
-                            Destroy(following.transform.Find("following2").gameObject);
-                        if (following.transform.Find("following3") != null)
-                            Destroy(following.transform.Find("following3").gameObject);
-                        if (following.transform.Find("following4") != null)
-                            Destroy(following.transform.Find("following4").gameObject);
-                        if (following.transform.Find("following5") != null)
-                            Destroy(following.transform.Find("following5").gameObject);
-                        if (following.transform.Find("following6") != null)
-                            Destroy(following.transform.Find("following6").gameObject);*/
-
-                        if (following.transform.Find("following1") != null)
-                        {
-                            Debug.Log("Destroying old chirpper list...");
-
-                            Destroy(following.transform.Find("following1").gameObject);
-                            Destroy(following.transform.Find("following2").gameObject);
-                            Destroy(following.transform.Find("following3").gameObject);
-                            Destroy(following.transform.Find("following4").gameObject);
-                            Destroy(following.transform.Find("following5").gameObject);
-                            Destroy(following.transform.Find("following6").gameObject);
-                        }
-
                         //loop a max of 6 times
                         int loop = 0;
 
-                        if (words.Length > 5)
+                        if (words.Length > 6)
                             loop = 6;
                         else
                             loop = words.Length - 1;
                         
-                        for (int i = 1; i < loop; i++)
+						for (int i = 1; i < loop; i++)
                         {
                             Debug.Log("Following #" + i + ": " + words[i]);
                             Vector3 newPos = following.transform.position;
@@ -706,23 +837,26 @@ public class MyNetwork : MonoBehaviour {
                             temp.transform.SetParent(following.transform, false);
                             temp.name = "following" + i;
                             ChirpperInfo ci = temp.GetComponent<ChirpperInfo>();
+							temp.transform.Find("Unfollow Button").gameObject.SetActive(true);
 
                             ci.username.text = words[i];
                             ci.description.text = "This is a small sample of some description text...";
                             ci.time.text = "00:14";
-                            ci.addUnfollowButtonFunction();
+							ci.addUnfollowButtonFunction();
+							ci.addFollowButtonFunction();
                         }
                     }
                 }
-
-                //print(download.text);
-                //test.text = download.text;
             }
         }
         else
         {
             Debug.Log("Must be logged in to see the people you are following.");
         }
+	}
+
+	public void refreshFollowingChirps(){
+		StartCoroutine (getFollowingChirps ());
 	}
 
 	public IEnumerator getFollowingChirps() {
@@ -738,72 +872,78 @@ public class MyNetwork : MonoBehaviour {
 
 			GameObject recentChirps = GameObject.Find("Home Chirps Feed Panel");
 			//gets results and stores them into string array split with delimiter \\
+
 			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
 			//get 3 recent chirps and add them to the panel
-
-			//Removes previous old chirps
-			if(recentChirps.transform.Find("FollowingChirp0")!= null){
-				Destroy(recentChirps.transform.Find("FollowingChirp0").gameObject);
-				Destroy(recentChirps.transform.Find("FollowingChirp5").gameObject);
-				Destroy(recentChirps.transform.Find("FollowingChirp10").gameObject);
-			}
-			//loop a max of 3 times
-			int loop = words.Length >= 15? 15: words.Length;
-
-
-			for (int i = 0; i < loop; i+=5){
-				Vector3 newPos = recentChirps.transform.position;
-				newPos.y = 2 - ((i/5)*75);
-				GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
-				temp.transform.position = newPos;
-				temp.transform.SetParent (recentChirps.transform,false);
-				temp.name = "FollowingChirp" + i;
-				ChirpInfo ci = temp.GetComponent<ChirpInfo>();
-				
-				DateTime dt = Convert.ToDateTime(words[i+4]); // THIS LINE IS CAUSING AN ERROR
-				if ((DateTime.Now - dt).TotalDays >= 1){
-					ci.timestamp.text = dt.ToString ("MMM") + " " + dt.Day ;
-				}else if ((DateTime.Now - dt).TotalHours > 0){
-					ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalHours)) + " hr ago";
-				}else{
-					ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalMinutes)) + " min ago";
+			if (recentChirps != null){
+				//Removes previous old chirps
+				if(recentChirps.transform.Find("FollowingChirp0")!= null){
+					Destroy(recentChirps.transform.Find("FollowingChirp0").gameObject);
 				}
-				
-				ci.id = int.Parse(words[i]);
-				ci.username.text = words[i+1];
-				ci.title.text = words[i+2];
-				ci.timer.text = "00:";
-				ci.timer.text += int.Parse (words[i+3]) < 10? "0" + words[i+3]:words[i+3];
-				ci.addButtonFunction();
+				if(recentChirps.transform.Find("FollowingChirp5")!= null){
+					Destroy(recentChirps.transform.Find("FollowingChirp5").gameObject);
+				}
+				if(recentChirps.transform.Find("FollowingChirp10")!= null){
+					Destroy(recentChirps.transform.Find("FollowingChirp10").gameObject);
+				}
+				//loop a max of 3 times
+				int loop = words.Length >= 15? 15: words.Length;
 
-
-
-
-				form = new WWWForm();
-				
-				form.AddField( "getUsersProfilePicture", ci.username.text);
-				download =  new WWW( url, form);
-				yield return download;
-				
-				//couldn't get extension for file
-				if(!string.IsNullOrEmpty(download.error)) {
-					print( "Error downloading: " + download.error );
-					
-				} else {
-					//download.text should be extension of file
-					WWW www = new WWW("https://s3.amazonaws.com/chirpperprofilepicture/" + username + download.text);
-					yield return www;
-					
-					if (!string.IsNullOrEmpty (www.error)) {
-						print("No Picture found, using default");
-					} else {
-						ci.profilePicture.texture = www.texture;
-						//result(www.texture);
+				if (words.Length != 1){
+					for (int i = 0; i < loop; i+=5){
+						Vector3 newPos = recentChirps.transform.position;
+						newPos.y = 2 - ((i/5)*75);
+						GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
+						temp.transform.position = newPos;
+						temp.transform.SetParent (recentChirps.transform,false);
+						temp.name = "FollowingChirp" + i;
+						ChirpInfo ci = temp.GetComponent<ChirpInfo>();
+						
+						DateTime dt = Convert.ToDateTime(words[i+4]); // THIS LINE IS CAUSING AN ERROR
+						if ((DateTime.Now - dt).TotalDays >= 1){
+							ci.timestamp.text = dt.ToString ("MMM") + " " + dt.Day ;
+						}else if ((int)(Math.Round ((DateTime.Now - dt).TotalHours)) > 0){
+							ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalHours)) + " hr ago";
+						}else{
+							ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalMinutes)) + " min ago";
+						}
+						
+						ci.id = int.Parse(words[i]);
+						ci.username.text = words[i+1];
+						ci.title.text = words[i+2];
+						ci.timer.text = "00:";
+						ci.timer.text += int.Parse (words[i+3]) < 10? "0" + words[i+3]:words[i+3];
+						ci.addButtonFunction();
 					}
+
+//					if (username != ci.username.text){
+//
+//						form = new WWWForm();
+//						
+//						form.AddField( "getUsersProfilePicture", ci.username.text);
+//						download =  new WWW( url, form);
+//						yield return download;
+//						
+//						//couldn't get extension for file
+//						if(!string.IsNullOrEmpty(download.error)) {
+//							print( "Error downloading: " + download.error );
+//							
+//						} else {
+//							//download.text should be extension of file
+//							WWW www = new WWW("https://s3.amazonaws.com/chirpperprofilepicture/" + username + download.text);
+//							yield return www;
+//							
+//							if (!string.IsNullOrEmpty (www.error)) {
+//								print("No Picture found, using default");
+//							} else {
+//								ci.profilePicture.texture = www.texture;
+//							}
+//						}
+//					}else{
+//						ci.profilePicture.texture = myProfilePicture.texture;
+//					}
+
 				}
-
-			//	StartCoroutine(getProfilePicture(ci.profilePicture,ci.username.text,value => ci.profilePicture.texture = value));
-
 			}
 		}
 	}
@@ -819,22 +959,18 @@ public class MyNetwork : MonoBehaviour {
 		if (!string.IsNullOrEmpty (download.error)) {
 			print ("Error downloading: " + download.error);
 		} else {
-			test.text = download.text;
-			print (download.text);
 		}
 	}
 	
 	public IEnumerator sendChirp(string chirpTitle, byte[] toSend, int length) {
 		WWWForm form = new WWWForm();
-		//FileStream fs = new FileStream ("assets\\myChirp.wav", FileMode.Open, FileAccess.Read,FileShare.Read);
-		//BinaryReader reader = new BinaryReader(fs);
-		//byte[] toSend = new byte[fs.Length];
-		//fs.Read(toSend,0,System.Convert.ToInt32(fs.Length));
-		//fs.Close ();
-		
 		form.AddField( "username",  menu.currentUsername.text.ToString().Substring(1));
 		form.AddField( "chirpTitle", chirpTitle);
-		form.AddField ("length", length);
+		if (length != 0) {
+			form.AddField ("length", length);
+		} else {
+			form.AddField ("length", 1);
+		}
 
         //byte[] toSend = new byte[fs.Length];
 		form.AddBinaryData ("chirpData", toSend);
@@ -880,10 +1016,12 @@ public class MyNetwork : MonoBehaviour {
 
 	void Update(){
 		if (playingButton != null) {
-			if (!source.isPlaying && !isLoading) {
-				playingButton.image.overrideSprite = null;
-			} else {
+			if(isLoading){
+				playingButton.image.overrideSprite = loadingImage;
+			}else if (source.isPlaying) {
 				playingButton.image.overrideSprite = stopImage;
+			} else {
+				playingButton.image.overrideSprite = null;
 			}
 		}
 	}
@@ -891,7 +1029,6 @@ public class MyNetwork : MonoBehaviour {
 	public IEnumerator login(string oldUsername, string oldPassword) {
 		username = oldUsername;
         WWWForm form = new WWWForm();
-		//form.AddBinaryData("binary", new byte[1]);
         form.AddField("login", oldUsername);
         form.AddField("username", oldUsername);
         form.AddField("password", oldPassword);
@@ -924,15 +1061,14 @@ public class MyNetwork : MonoBehaviour {
             else 
             {
                 Debug.Log("Login Successful!");
-				StartCoroutine(getFollowingChirps());
                 // Collect info to display on user profile page
-                menu.SetUserInfo(words[0], words[1], words[2]);
+                menu.SetUserInfo(words[1], words[2], words[3]);
                 menu.DisplayLoggedInPanel();
                 isLoggedIn = true;
 
 //				form = new WWWForm();
 //				
-//				form.AddField( "getUsersProfilePicture", ci.username.text);
+//				form.AddField( "getUsersProfilePicture", oldUsername);
 //				download =  new WWW( url, form);
 //				yield return download;
 //				
@@ -942,18 +1078,16 @@ public class MyNetwork : MonoBehaviour {
 //					
 //				} else {
 //					//download.text should be extension of file
-//					WWW www = new WWW("https://s3.amazonaws.com/chirpperprofilepicture/" + username + words[3]);
+//					WWW www = new WWW("https://s3.amazonaws.com/chirpperprofilepicture/" + oldUsername + words[0]);
 //					yield return www;
 //					
 //					if (!string.IsNullOrEmpty (www.error)) {
 //						print("No Picture found, using default");
 //					} else {
-//						ci.profilePicture.texture = www.texture;
-//						print ("Loading Picture");
-//						//result(www.texture);
+//						myProfilePicture.texture = www.texture;
 //					}
-//				}
-
+			//	}
+				StartCoroutine(getFollowingChirps());
 
 
             }
@@ -963,6 +1097,11 @@ public class MyNetwork : MonoBehaviour {
 				cookie = download.responseHeaders["SET-COOKIE"];
 			}
 		}
+	}
+
+
+	public void refreshRecentChirps(){
+		StartCoroutine (getRecentChirps ());
 	}
 
 	public IEnumerator getRecentChirps() {
@@ -976,79 +1115,82 @@ public class MyNetwork : MonoBehaviour {
 			print( "Error downloading: " + download.error );
 		} else {
 			GameObject recentChirps = GameObject.Find("Recent Chirps Feed Panel");
+			if (recentChirps != null){
+				//gets results and stores them into string array split with delimiter \\
+				string[] words = download.text.Split(delim,System.StringSplitOptions.None);
 
-			//print(download.text);
-			//gets results and stores them into string array split with delimiter \\
-			string[] words = download.text.Split(delim,System.StringSplitOptions.None);
-
-			//Removes previous old chirps
-			if(recentChirps.transform.Find("Chirp0")!= null){
-				Destroy(recentChirps.transform.Find("Chirp0").gameObject);
-				Destroy(recentChirps.transform.Find("Chirp5").gameObject);
-				Destroy(recentChirps.transform.Find("Chirp10").gameObject);
-			}
-			//get 3 recent chirps and add them to the panel
-			for (int i = 0; i < 15; i+=5){
-			    
-				Vector3 newPos = recentChirps.transform.position;
-				newPos.y = 2 - ((i/5)*75);
-				GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
-				temp.transform.position = newPos;
-				temp.transform.SetParent (recentChirps.transform,false);
-				temp.name = "Chirp" +i;
-
-				ChirpInfo ci = temp.GetComponent<ChirpInfo>();
-
-				DateTime dt = Convert.ToDateTime(words[i+4]);
-				if ((DateTime.Now - dt).TotalDays >= 1){
-					ci.timestamp.text = dt.ToString ("MMM") + " " + dt.Day ;
-				}else if ((DateTime.Now - dt).TotalHours > 0){
-					ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalHours)) + " hr ago";
-				}else{
-					ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalMinutes)) + " min ago";
+				//Removes previous old chirps
+				if(recentChirps.transform.Find("Chirp0")!= null){
+					Destroy(recentChirps.transform.Find("Chirp0").gameObject);
 				}
-
-				ci.id = int.Parse(words[i]);
-				ci.username.text = words[i+1];
-				
-				ci.title.text = words[i+2];
-				if (ci.title.text.Length > 20){
-					ci.title.fontSize = 10;
+				if(recentChirps.transform.Find("Chirp5")!= null){
+					Destroy(recentChirps.transform.Find("Chirp5").gameObject);
 				}
-				ci.timer.text = "00:";
-				ci.timer.text += int.Parse (words[i+3]) < 10? "0" + words[i+3]:words[i+3];
+				if(recentChirps.transform.Find("Chirp10")!= null){
+					Destroy(recentChirps.transform.Find("Chirp10").gameObject);
+				}
+				//get 3 recent chirps and add them to the panel
+				for (int i = 0; i < 15; i+=5){
+				    
+					Vector3 newPos = recentChirps.transform.position;
+					newPos.y = 2 - ((i/5)*75);
+					GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
+					temp.transform.position = newPos;
+					temp.transform.SetParent (recentChirps.transform,false);
+					temp.name = "Chirp" +i;
 
-				ci.addButtonFunction();
-                ci.addProfileButtonFunction();
+					ChirpInfo ci = temp.GetComponent<ChirpInfo>();
 
-
-
-				form = new WWWForm();
-				
-				form.AddField( "getUsersProfilePicture", ci.username.text);
-				download =  new WWW( url, form);
-				yield return download;
-				
-				//couldn't get extension for file
-				if(!string.IsNullOrEmpty(download.error)) {
-					print( "Error downloading: " + download.error );
-					
-				} else {
-					//download.text should be extension of file
-					WWW www = new WWW("https://s3.amazonaws.com/chirpperprofilepicture/" + username + download.text);
-					yield return www;
-					
-					if (!string.IsNullOrEmpty (www.error)) {
-						print("No Picture found, using default");
-					} else {
-						ci.profilePicture.texture = www.texture;
-						//result(www.texture);
+					DateTime dt = Convert.ToDateTime(words[i+4]);
+					if ((DateTime.Now - dt).TotalDays >= 1){
+						ci.timestamp.text = dt.ToString ("MMM") + " " + dt.Day ;
+					}else if ((int)(Math.Round ((DateTime.Now - dt).TotalHours))> 0){
+						ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalHours)) + " hr ago";
+					}else{
+						ci.timestamp.text = (int)(Math.Round ((DateTime.Now - dt).TotalMinutes)) + " min ago";
 					}
+
+					ci.id = int.Parse(words[i]);
+					ci.username.text = words[i+1];
+					
+					ci.title.text = words[i+2];
+					if (ci.title.text.Length > 20){
+						ci.title.fontSize = 10;
+					}
+					ci.timer.text = "00:";
+					ci.timer.text += int.Parse (words[i+3]) < 10? "0" + words[i+3]:words[i+3];
+
+					ci.addButtonFunction();
+	                ci.addProfileButtonFunction();
+
+//				if (username != ci.username.text){
+//
+//					form = new WWWForm();
+//					
+//					form.AddField( "getUsersProfilePicture", ci.username.text);
+//					download =  new WWW( url, form);
+//					yield return download;
+//					
+//					//couldn't get extension for file
+//					if(!string.IsNullOrEmpty(download.error)) {
+//						print( "Error downloading: " + download.error );
+//						
+//					} else {
+//						//download.text should be extension of file
+//						WWW www = new WWW("https://s3.amazonaws.com/chirpperprofilepicture/" + ci.username.text + download.text);
+//						yield return www;
+//						
+//						if (!string.IsNullOrEmpty (www.error)) {
+//							print("No Picture found, using default");
+//						} else {
+//							ci.profilePicture.texture = www.texture;
+//						}
+//					}
+//
+//				}else{
+//					ci.profilePicture.texture = myProfilePicture.texture;
+//				}
 				}
-
-				//StartCoroutine(getProfilePicture(ci.profilePicture,ci.username.text,value => ci.profilePicture.texture = value));
-
-
 			}
 		}
 	}
@@ -1058,7 +1200,7 @@ public class MyNetwork : MonoBehaviour {
 	}
 
 	public IEnumerator stream(int id,Button button) {
-		if (playingButton != button || !source.isPlaying) {
+		if (playingButton != button || (!source.isPlaying && !isLoading)) {
 			if (playingButton != null) {
 				playingButton.image.overrideSprite = null;
 			}
@@ -1083,127 +1225,42 @@ public class MyNetwork : MonoBehaviour {
 			source.Stop();
 			playingButton.image.overrideSprite = null;
 			print("stopped yo");
+
 		}
 
 	}
 
 
 	
-	public IEnumerator sendProfilePicture() {
-		string pathname = EditorUtility.OpenFilePanel("Load file","","*.png,*.jpg");
-		if (pathname != "") {
-			string extension = pathname.Substring (pathname.LastIndexOf ('.'));
-			extension = extension.ToLower ();
-			if (extension == ".jpg" || extension == ".png") {
-				WWWForm form = new WWWForm ();
-				FileStream fs = new FileStream (pathname, FileMode.Open, FileAccess.Read, FileShare.Read);
-				BinaryReader reader = new BinaryReader (fs);
-				byte[] toSend = new byte[fs.Length];
-				fs.Read (toSend, 0, System.Convert.ToInt32 (fs.Length));
-				fs.Close ();
-			
-				form.AddField ("username", username);
-				form.AddField ("extension", extension);
-				form.AddBinaryData ("profilePicture", toSend);
-				WWW download = new WWW (url, form);
-				yield return download;
-			
-				if (!string.IsNullOrEmpty (download.error)) {
-					print ("Error downloading: " + download.error);
-				} else {
-					print (download.text);
-				}
-			} else {
-				print ("ERROR: Selected file is not a valid extension");
-			}
-		
-		}
-	}
+//	public IEnumerator sendProfilePicture() {
+//		string pathname = EditorUtility.OpenFilePanel("Load file","","*.png,*.jpg");
+//		if (pathname != "") {
+//			string extension = pathname.Substring (pathname.LastIndexOf ('.'));
+//			extension = extension.ToLower ();
+//			if (extension == ".jpg" || extension == ".png") {
+//				WWWForm form = new WWWForm ();
+//				FileStream fs = new FileStream (pathname, FileMode.Open, FileAccess.Read, FileShare.Read);
+//				BinaryReader reader = new BinaryReader (fs);
+//				byte[] toSend = new byte[fs.Length];
+//				fs.Read (toSend, 0, System.Convert.ToInt32 (fs.Length));
+//				fs.Close ();
+//			
+//				form.AddField ("username", username);
+//				form.AddField ("extension", extension);
+//				form.AddBinaryData ("profilePicture", toSend);
+//				WWW download = new WWW (url, form);
+//				yield return download;
+//			
+//				if (!string.IsNullOrEmpty (download.error)) {
+//					print ("Error downloading: " + download.error);
+//				} else {
+//					print (download.text);
+//				}
+//			} else {
+//				print ("ERROR: Selected file is not a valid extension");
+//			}
+//		
+//		}
+//	}
 
-
-	/*void OnGUI(){
-		searchField = GUI.TextField (new Rect (600, 10, 200, 20), searchField, 25);
-		if (GUI.Button(new Rect(800,10,200,20),"Search Chirpper!")){
-			StartCoroutine(search(searchField));
-		}
-
-		if (GUI.Button (new Rect (410, 140, 200, 20), "get Recent Chirps")) {
-			StartCoroutine (getRecentChirps ());
-		}
-
-		//not signed in
-		if (cookie == "") {
-			
-			username = GUI.TextField (new Rect (10, 10, 200, 20), username, 25);
-			password = GUI.PasswordField (new Rect (10, 40, 200, 20), password, '*', 25);
-			
-			//default view
-            if (!signedUp)
-            {
-				if (GUI.Button (new Rect (10, 70, 200, 20), "Login")) {
-					StartCoroutine (Login ());
-				}
-				if (GUI.Button (new Rect (10, 100, 200, 20), "Sign Up")) {
-                    signedUp = true;
-					
-				}	
-				//attempting to sign up
-			} else {
-				passwordConfirm = GUI.PasswordField(new Rect(10, 70, 200, 20), passwordConfirm,'*', 25);
-				name = GUI.TextField(new Rect(10, 100, 200, 20), name, 25);
-				email = GUI.TextField(new Rect(10, 130, 200, 20), email, 25);
-				if (GUI.Button (new Rect (10, 220, 200, 20), "Sign Up")) {
-                    signedUp = true;
-                    StartCoroutine(signUp());
-				}	
-				if (GUI.Button (new Rect (10, 190, 200, 20), "Cancel")) {
-                    signedUp = false;
-				}	
-			}
-			
-			//signed in
-		} else {
-			chirpTitle = GUI.TextField (new Rect (10, 10, 200, 20), chirpTitle, 25);
-
-			if (GUI.Button(new Rect(10,40,200,20),"Chirp it!")){
-				StartCoroutine(sendChirp ());
-			}
-
-			if (GUI.Button(new Rect(210,40,200,20),"Delete Chirp")){
-				StartCoroutine(deleteChirp (3));
-			}
-
-			
-			if (GUI.Button (new Rect (410, 70, 200, 20), "Stream")) {
-				StartCoroutine (stream (5));
-			}
-			
-			if (GUI.Button (new Rect (410, 100, 200, 20), "Get Users Chirps")) {
-				StartCoroutine (getChirps ("John"));
-			}
-
-
-			follow = GUI.TextField (new Rect (10, 70, 200, 20), follow, 25);
-			if (GUI.Button(new Rect(10,100,200,20),"Follow User!")){
-				StartCoroutine(followUser ());
-			}
-
-			if (GUI.Button(new Rect(210,100,200,20),"Unfollow User!")){
-				StartCoroutine(unfollowUser ());
-			}
-			
-			if (GUI.Button(new Rect(10,130,200,20),"Get Who I'm Following")){
-				StartCoroutine(getFollowing ());
-			}
-
-			if (GUI.Button(new Rect(210,130,200,20),"Get Who's Following Me")){
-				StartCoroutine(getFollowers ());
-			}
-
-
-			if (GUI.Button(new Rect(10,160,200,20),"Chirps From Users I'm Following")){
-				StartCoroutine(getFollowingChirps ());
-			}
-		}
-	}*/
 }

@@ -1,5 +1,9 @@
+============================== EDITED ============================
+==================================================================
+
 Login(string username, string password)
 	if successful:
+		- Extension of Picture for user
 		- Number of users following
 		- Number of followers
 		- Number of chirps
@@ -7,8 +11,11 @@ Login(string username, string password)
 		- "false"
 
 search(string search)
-	- Up to 5 usernames ("user", username)
-	- Up to 8 chirps ("chirp", id, username, title)
+	- Up to 2 usernames ("user", username)
+	- Up to 4 chirps ("chirp", id, username, title,length,timestamp)
+
+============================== EDITED ============================
+==================================================================
 
 followUser(string username, string followUsername)
 	- Current number of people the username is following
@@ -19,14 +26,10 @@ unfollowUser(string username, string unfollowUsername)
 deleteChirp(string username, string id)
 	- Current number of posts by the username
 
-============================== EDITED ============================
-==================================================================
-
 sendChirp(string username, string title, BinaryData audioFile, int length)
 	- Current number of posts by the username
 
-============================== EDITED ============================
-==================================================================
+
 
 createAccount(string email, string password)
 	if successful = email did not exist:
@@ -46,9 +49,6 @@ addAccount(string email, string username, string password)
 	if unsuccessful:
 		- "false"
 
-============================== EDITED ============================
-==================================================================
-
 getUsersChirps(string username)
 	- Up to 8 chirps (id, title,length,timestamp)
 
@@ -65,11 +65,14 @@ getTopChirppers()
 
 ============================== EDITED ============================
 ==================================================================
-
 getFollowers(string username)
 	- Number of followers
 	- Follower usernames
+	- if user is following follower - true
+		if not false
 
+============================== EDITED ============================
+==================================================================
 getFollowing(string username)
 	- Number of following
 	- Following usernames

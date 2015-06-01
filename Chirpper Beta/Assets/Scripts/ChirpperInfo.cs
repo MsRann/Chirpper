@@ -9,7 +9,7 @@ public class ChirpperInfo : MonoBehaviour
     public Text time;
     public Button playButton;
     public Button followButton;
-    //public Button unfollowButton;
+    public Button unfollowButton;
     public RawImage profilePicture;
 
     public int id;
@@ -29,16 +29,24 @@ public class ChirpperInfo : MonoBehaviour
 
     public void addIntroButtonFunction()
     {
-        playButton.onClick.AddListener(() => { StartCoroutine(myNetwork.stream(id, playButton)); });
+		playButton.onClick.AddListener(() => { StartCoroutine(myNetwork.stream(id, playButton));});
     }
 
     public void addFollowButtonFunction()
     {
-        followButton.onClick.AddListener(() => { StartCoroutine(myNetwork.followUser(menu.currentUsername.text, username.text)); });
+        followButton.onClick.AddListener(() => { 
+			StartCoroutine(myNetwork.followUser(menu.currentUsername.text.Substring(1), username.text));
+			followButton.gameObject.SetActive(false);
+			unfollowButton.gameObject.SetActive(true);
+		});
     }
 
     public void addUnfollowButtonFunction()
     {
-        //unfollowButton.onClick.AddListener(() => { StartCoroutine(myNetwork.unfollowUser(menu.currentUsername.text, username.text)); });
+        unfollowButton.onClick.AddListener(() => { 
+			StartCoroutine(myNetwork.unfollowUser(menu.currentUsername.text.Substring(1), username.text)); 
+			followButton.gameObject.SetActive(true);
+			unfollowButton.gameObject.SetActive(false);			
+		});
     }
 }
