@@ -13,6 +13,7 @@ public class ChirpInfo : MonoBehaviour {
     public MainMenuGUI menu;
 	public RawImage profilePicture;
     public Button profileButton;
+	public Button deleteButton;
 
 	void Start () {
 		myNetwork = GameObject.FindGameObjectWithTag("Network").GetComponent<MyNetwork>();
@@ -21,6 +22,10 @@ public class ChirpInfo : MonoBehaviour {
 
 	void Update () {
 		
+	}
+
+	public void addDeleteButtonFunction(){
+		deleteButton.onClick.AddListener (() => {	menu.DisplayDeleteChirpPanel(id); });
 	}
 
 	public void addButtonFunction(){

@@ -6,6 +6,7 @@
 #region Namespaces
 
 using UnityEngine;
+using System;
 using System.Collections;
 
 #endregion
@@ -117,23 +118,45 @@ public class FSPlayer : MonoBehaviour
 		// Ambient Sunny
 		AmbientLightList[0] =	new Color(0.62745098f,0.705882353f,0.705882353f,1f);
 		AmbientLightList[1] =	new Color(0.705882353f,0.705882353f,0.705882353f,1f);
-		
+
+
+
 		SwitchSkyBox(0);
+
+		DateTime dt = DateTime.Now;
+		//print ("Hour:" + dt.Hour);
+		//dt = dt.AddHours (-8);
+		if (dt.Hour > 22 || dt.Hour <= 2) {
+			SwitchSkyBox (3);
+			print("Night");
+		} else if (dt.Hour > 2 && dt.Hour <= 5) {
+			SwitchSkyBox (2);
+			print("Early Morning");
+		} else if (dt.Hour > 5 && dt.Hour <= 10) {
+			SwitchSkyBox (0);
+			print("Later Morning");
+		} else if (dt.Hour > 10 && dt.Hour <= 16) {
+			SwitchSkyBox (1);
+			print("Early Evening");
+		} else {
+			SwitchSkyBox (2);
+			print("Late Evening");
+		}
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
-		// User press Q key
-		if(Input.GetKeyUp(KeyCode.Alpha1))
-		{
-			SwitchSkyBox(-1);
-		}
-		// User press E key
-		if(Input.GetKeyUp(KeyCode.Alpha2))
-		{
-			SwitchSkyBox(+1);
-		}
+//		// User press Q key
+//		if(Input.GetKeyUp(KeyCode.Alpha1))
+//		{
+//			SwitchSkyBox(-1);
+//		}
+//		// User press E key
+//		if(Input.GetKeyUp(KeyCode.Alpha2))
+//		{
+//			SwitchSkyBox(+1);
+//		}
 	}
 	
 	void OnTriggerExit(Collider other)
@@ -163,10 +186,10 @@ public class FSPlayer : MonoBehaviour
 
 #region Functions
 
-	void SwitchSkyBox(int DiffNum)
+	void SwitchSkyBox(int newSkybox)
 	{
 		// update m_CurrentSkyBox
-		m_CurrentSkyBox += DiffNum;
+		m_CurrentSkyBox = newSkybox;
 		
 		// rounds m_CurrentSkyBox
 		if(m_CurrentSkyBox<0)

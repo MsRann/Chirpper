@@ -27,6 +27,7 @@ public class MainMenuGUI : MonoBehaviour {
     public GameObject mustBeLoggedInPanel;
 	public GameObject searchPanel;
 	public GameObject searchField;
+	public GameObject deleteChirpPanel;
 
     // For Sign Up Panel
     public InputField newEmailAddress;
@@ -79,6 +80,7 @@ public class MainMenuGUI : MonoBehaviour {
 
     GameObject networkObject;
     MyNetwork myNetwork;
+	int deleteChirpID;
 
 	float timer;
 	//refreshes automatically every 3 seconds
@@ -149,6 +151,7 @@ public class MainMenuGUI : MonoBehaviour {
     // For Logging Out
     public void Logout()
     {
+		myNetwork.setSearchFieldPosition (187);
         loggedOutPanel.SetActive(true);
         recentChirpsPanel.SetActive(true);
 
@@ -158,7 +161,8 @@ public class MainMenuGUI : MonoBehaviour {
         homeChirpsPanel.SetActive(false);
         myChirpsPanel.SetActive(false);
         loggedInPanel.SetActive(false);
-
+		homeButtonPanel.SetActive(false);
+		searchPanel.SetActive(false);
         myNetwork.isLoggedIn = false;
 
         newUsername.text = "";
@@ -167,6 +171,8 @@ public class MainMenuGUI : MonoBehaviour {
 
         oldUsername.text = "";
         oldPassword.text = "";
+
+		myNetwork.clearAllPanels ();
     }
 
     // For Following Users
@@ -242,37 +248,32 @@ public class MainMenuGUI : MonoBehaviour {
         //blackoutPanel.SetActive(true);
         userPreviewPanel.SetActive(true);
 
+		searchField.SetActive (false);
         loginPanel.SetActive(false);
         signUpPanel.SetActive(false);
         loggedInPanel.SetActive(false);
         loggedOutPanel.SetActive(false);
         postChirpsPanel.SetActive(false);
 
-        if (followingPanel.activeSelf)
-        {
-            followingPanel.SetActive(false);
-            lastPanel = "followingPanel";
-        }
-        else if (followersPanel.activeSelf)
-        {
-            followersPanel.SetActive(false);
-            lastPanel = "followersPanel";
-        }
-        else if (homeChirpsPanel.activeSelf)
-        {
-            homeChirpsPanel.SetActive(false);
-            lastPanel = "homeChirpsPanel";
-        }
-        else if (recentChirpsPanel.activeSelf)
-        {
-            recentChirpsPanel.SetActive(false);
-            lastPanel = "recentChirpsPanel";
-        }
-        else if (myChirpsPanel.activeSelf)
-        {
-            myChirpsPanel.SetActive(false);
-            lastPanel = "myChirpsPanel";
-        }
+        if (followingPanel.activeSelf) {
+			followingPanel.SetActive (false);
+			lastPanel = "followingPanel";
+		} else if (followersPanel.activeSelf) {
+			followersPanel.SetActive (false);
+			lastPanel = "followersPanel";
+		} else if (homeChirpsPanel.activeSelf) {
+			homeChirpsPanel.SetActive (false);
+			lastPanel = "homeChirpsPanel";
+		} else if (recentChirpsPanel.activeSelf) {
+			recentChirpsPanel.SetActive (false);
+			lastPanel = "recentChirpsPanel";
+		} else if (myChirpsPanel.activeSelf) {
+			myChirpsPanel.SetActive (false);
+			lastPanel = "myChirpsPanel";
+		}else if  (searchPanel.activeSelf){
+			searchPanel.SetActive (false);
+			lastPanel = "searchPanel";
+		}
     }
 
     public void CloseUserPreviewPanel()
@@ -289,7 +290,7 @@ public class MainMenuGUI : MonoBehaviour {
             postChirpsPanel.SetActive(true);
         }
         
-
+		searchField.SetActive (true);
         if (lastPanel == "followingPanel")
             followingPanel.SetActive(true);
         else if (lastPanel == "followersPanel")
@@ -298,9 +299,27 @@ public class MainMenuGUI : MonoBehaviour {
             homeChirpsPanel.SetActive(true);
         else if (lastPanel == "recentChirpsPanel")
             recentChirpsPanel.SetActive(true);
-        else if (lastPanel == "myChirpsPanel")
-            myChirpsPanel.SetActive(true);
+		else if (lastPanel == "myChirpsPanel")
+			myChirpsPanel.SetActive(true);
+		else if (lastPanel == "searchPanel")
+			searchPanel.SetActive(true);
     }
+
+	public void DisplayDeleteChirpPanel(int id){
+		deleteChirpPanel.SetActive (true);
+		deleteChirpID = id;
+	}
+
+	public void NetworkDeleteChirp(){
+		myNetwork.deleteChirpVoid (deleteChirpID);
+		//myNetwork.refreshAllPanels ();
+		CloseDeleteChirpPanel ();
+	}
+
+	public void CloseDeleteChirpPanel(){
+		deleteChirpPanel.SetActive (false);
+	}
+
 
     public string getChirpTitle()
     {
@@ -409,8 +428,10 @@ public class MainMenuGUI : MonoBehaviour {
 
 	public void DisplaySearchPanel()
 	{
+		myNetwork.setSearchFieldPosition (250);
 		StartCoroutine (myNetwork.search(searchText.text));
 		searchPanel.SetActive (true);
+		searchPanel.transform.Find ("Recent Chirps Button").gameObject.SetActive(false);
 		followingPanel.SetActive(false);
 		followersPanel.SetActive(false);
 		homeChirpsPanel.SetActive(false);
@@ -421,6 +442,8 @@ public class MainMenuGUI : MonoBehaviour {
 
 	public void DisplayRecentChirpsPanel()
 	{
+		myNetwork.setSearchFieldPosition (187);
+		myNetwork.refreshRecentChirps ();
 		searchPanel.SetActive (false);
 		followingPanel.SetActive(false);
 		followersPanel.SetActive(false);
@@ -432,6 +455,7 @@ public class MainMenuGUI : MonoBehaviour {
 
     public void DisplayHomeChirpsPanel()
     {
+		myNetwork.setSearchFieldPosition (187);
 		searchPanel.SetActive (false);
         followingPanel.SetActive(false);
         followersPanel.SetActive(false);
@@ -444,6 +468,7 @@ public class MainMenuGUI : MonoBehaviour {
 
     public void DisplayMyChirpsPanel()
     {
+		myNetwork.setSearchFieldPosition (187);
 		searchPanel.SetActive (false);
 		StartCoroutine (myNetwork.getChirps(currentUsername.text.Substring(1)));
         followingPanel.SetActive(false);
@@ -456,6 +481,7 @@ public class MainMenuGUI : MonoBehaviour {
 
     public void DisplayFollowingPanel()
     {
+		myNetwork.setSearchFieldPosition (250);
 		searchPanel.SetActive (false);
         followingPanel.SetActive(true);
         followersPanel.SetActive(false);
@@ -471,6 +497,7 @@ public class MainMenuGUI : MonoBehaviour {
 
     public void DisplayFollowersPanel()
     {
+		myNetwork.setSearchFieldPosition (250);
 		searchPanel.SetActive (false);
         followersPanel.SetActive(true);
         followingPanel.SetActive(false);
@@ -508,8 +535,9 @@ public class MainMenuGUI : MonoBehaviour {
 		postChirpsPanel.SetActive(true);
         recentChirpsPanel.SetActive(false);
         homeChirpsPanel.SetActive(true);
+		myNetwork.setSearchFieldPosition (187);
 		loginPanel.SetActive(false);
-        homeButtonPanel.SetActive(true);
+		homeButtonPanel.SetActive(true);
 	}
 
     public void DisplayNewUserLoggedInPanel()
@@ -521,6 +549,7 @@ public class MainMenuGUI : MonoBehaviour {
         postChirpsPanel.SetActive(true);
         recentChirpsPanel.SetActive(false);
         homeChirpsPanel.SetActive(true);
+		myNetwork.setSearchFieldPosition (187);
         signUpPanel.SetActive(false);
         createUsernamePanel.SetActive(false);
         homeButtonPanel.SetActive(true);
