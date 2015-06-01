@@ -474,7 +474,7 @@ public class MyNetwork : MonoBehaviour {
 				int loop = words.Length >= 12? 12: words.Length;
 				
 				if (words.Length != 1){
-					for (int i = 0; i < loop; i+=4){
+					for (int i = 0; i < loop-1; i+=4){
 						Vector3 newPos = recentChirps.transform.position;
 						newPos.y = 2 - ((i/4)*75);
 						GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
@@ -502,7 +502,6 @@ public class MyNetwork : MonoBehaviour {
 						ci.timer.text += int.Parse (words[i+2]) < 10? "0" + words[i+2]:words[i+2];
 						ci.addButtonFunction();
 						if (isLoggedIn){
-							print("current username:" + menu.currentUsername.text.Substring(1));
 							if (menu.currentUsername.text.Substring(1) == ci.username.text){
 								ci.transform.Find("Delete Button").gameObject.SetActive(true);
 								ci.addDeleteButtonFunction();
@@ -920,7 +919,7 @@ public class MyNetwork : MonoBehaviour {
 				int loop = words.Length >= 15? 15: words.Length;
 
 				if (words.Length != 1){
-					for (int i = 0; i < loop; i+=5){
+					for (int i = 0; i < loop-1; i+=5){
 						Vector3 newPos = recentChirps.transform.position;
 						newPos.y = 2 - ((i/5)*75);
 						GameObject temp = Instantiate(chirpPrefab,newPos,Quaternion.identity) as GameObject;
