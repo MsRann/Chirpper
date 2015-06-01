@@ -239,6 +239,7 @@ public class MyNetwork : MonoBehaviour {
 					ci.timer.text = "00:";
 					ci.timer.text += int.Parse (words[iter+4]) < 10? "0" + words[iter+4]:words[iter+4];
 					ci.addButtonFunction();
+                    ci.addProfileButtonFunction();
 					if (isLoggedIn){
 						
 						if (menu.currentUsername.text.Substring(1) == ci.username.text){
@@ -501,6 +502,7 @@ public class MyNetwork : MonoBehaviour {
 						ci.timer.text = "00:";
 						ci.timer.text += int.Parse (words[i+2]) < 10? "0" + words[i+2]:words[i+2];
 						ci.addButtonFunction();
+                        ci.addProfileButtonFunction();
 						if (isLoggedIn){
 							if (menu.currentUsername.text.Substring(1) == ci.username.text){
 								ci.transform.Find("Delete Button").gameObject.SetActive(true);
@@ -946,6 +948,7 @@ public class MyNetwork : MonoBehaviour {
 						ci.timer.text = "00:";
 						ci.timer.text += int.Parse (words[i+3]) < 10? "0" + words[i+3]:words[i+3];
 						ci.addButtonFunction();
+                        ci.addProfileButtonFunction();
 
 						if (isLoggedIn){
 						
@@ -1209,7 +1212,7 @@ public class MyNetwork : MonoBehaviour {
 					ci.timer.text += int.Parse (words[i+3]) < 10? "0" + words[i+3]:words[i+3];
 
 					ci.addButtonFunction();
-					//ci.addProfileButtonFunction();
+					ci.addProfileButtonFunction();
 					if (isLoggedIn){
 						if (menu.currentUsername.text.Substring(1) == ci.username.text){
 							ci.transform.Find("Delete Button").gameObject.SetActive(true);
