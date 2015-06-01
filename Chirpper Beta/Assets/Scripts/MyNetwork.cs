@@ -1416,12 +1416,14 @@ public class MyNetwork : MonoBehaviour {
 
     public void refreshFollowingPanel()
     {
-        StartCoroutine(getFollowing(menu.currentUsername.text, null));
+        string temp = menu.currentUsername.text.Remove(0, 1);
+        StartCoroutine(getFollowing(temp, null));
     }
 
     public void refreshFollowersPanel()
     {
-        StartCoroutine(getFollowers(menu.currentUsername.text, null));
+        string temp = menu.currentUsername.text.Remove(0, 1);
+        StartCoroutine(getFollowers(temp, null));
     }
 	
 //	public IEnumerator sendProfilePicture() {
