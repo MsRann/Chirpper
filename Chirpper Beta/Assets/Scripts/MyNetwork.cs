@@ -96,9 +96,6 @@ public class MyNetwork : MonoBehaviour {
 		
 			print("Raw Search Output:" + download.text);
 			GameObject searchPanel = GameObject.Find ("Search Panel");
-			if (!isLoggedIn){
-				searchPanel.transform.Find ("Recent Chirps Button").gameObject.SetActive(true);
-			}
 			//get 6 recent chirppers and add them to the panel
 			if (searchPanel != null) {
 				//Removes previous old searched users
@@ -473,8 +470,8 @@ public class MyNetwork : MonoBehaviour {
 				}
 				//loop a max of 3 times
 				int loop = words.Length >= 12? 12: words.Length;
-				
 				if (words.Length != 1){
+					menu.noChirpsText.enabled = false;
 					for (int i = 0; i < loop-1; i+=4){
 						Vector3 newPos = recentChirps.transform.position;
 						newPos.y = 2 - ((i/4)*75);
@@ -512,7 +509,9 @@ public class MyNetwork : MonoBehaviour {
 
 						//ci.profilePicture.texture = myProfilePicture.texture;
 					}
-				 }
+				}else{
+					menu.noChirpsText.enabled = true;
+				}
 			}
 				
 				
@@ -591,7 +590,7 @@ public class MyNetwork : MonoBehaviour {
                 if (Convert.ToInt32(words[0]) < 1)
                 {
                     Debug.Log("No one is following [" + thisUsername + "]");
-                    menu.noFollowersText.enabled = true;
+					menu.noFollowersText.enabled = true;
                 }
                 else
                 {
@@ -894,14 +893,9 @@ public class MyNetwork : MonoBehaviour {
     public IEnumerator getTopChirppers(string thisUsername)
     {
         WWWForm form = new WWWForm();
-
+		form.AddField("getTopChirppers", "");
         if (isLoggedIn)
-        {
-            form.AddField("getTopChirppers", "");
-            form.AddField("username", thisUsername);
-        }
-        else
-            form.AddField("getTopChirppers", "");
+            form.AddField("username", thisUsername);	
         
         WWW download = new WWW(url, form);
         yield return download;
@@ -1047,17 +1041,20 @@ public class MyNetwork : MonoBehaviour {
                         ci.username.text = words[i];
                         ci.description.text = "This is a small sample of some description text...";
                         ci.time.text = "00:14";
-                        ci.addUnfollowButtonFunction();
-                        ci.addFollowButtonFunction();
 
-                        if (words[i + 1] == "true")
-                        {
-                            temp.transform.Find("Unfollow Button").gameObject.SetActive(true);
-                        }
-                        else
-                        {
-                            temp.transform.Find("Follow Button").gameObject.SetActive(true);
-                        }
+						if (isLoggedIn){
+	                        ci.addUnfollowButtonFunction();
+	                        ci.addFollowButtonFunction();
+
+	                        if (words[i + 1] == "true"){
+	                            temp.transform.Find("Unfollow Button").gameObject.SetActive(true);
+	                        }else{
+	                            temp.transform.Find("Follow Button").gameObject.SetActive(true);
+	                        }
+						}else{
+							temp.transform.Find("Unfollow Button").gameObject.SetActive(true);
+							temp.transform.Find("Unfollow Button").transform.Find("Text").GetComponent<Text>().text = "Login First!";
+						}
                     }
                 }
             }
@@ -1467,6 +1464,26 @@ public class MyNetwork : MonoBehaviour {
 
 	public void clearAllPanels(){
 
+
+		GameObject allPeople = GameObject.Find("All People Panel");
+		//get 6 recent chirppers and add them to the panel
+		if (allPeople != null)
+		{
+			//Removes previous old chirppers
+			if (allPeople.transform.Find("allPeople1") != null)
+				Destroy(allPeople.transform.Find("allPeople1").gameObject);
+			if (allPeople.transform.Find("allPeople2") != null)
+				Destroy(allPeople.transform.Find("allPeople2").gameObject);
+			if (allPeople.transform.Find("allPeople3") != null)
+				Destroy(allPeople.transform.Find("allPeople3").gameObject);
+			if (allPeople.transform.Find("allPeople4") != null)
+				Destroy(allPeople.transform.Find("allPeople4").gameObject);
+			if (allPeople.transform.Find("allPeople5") != null)
+				Destroy(allPeople.transform.Find("allPeople5").gameObject);
+			if (allPeople.transform.Find("allPeople6") != null)
+				Destroy(allPeople.transform.Find("allPeople6").gameObject);
+		}
+	
 		GameObject recentChirps = menu.homeChirpsPanel; 
 		recentChirps.SetActive (true);
 		//get 3 recent chirps and add them to the panel
