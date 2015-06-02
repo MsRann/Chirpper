@@ -55,6 +55,9 @@ public class MainMenuGUI : MonoBehaviour {
     public Text previewFollowText;
     string lastPanel = "";
 
+    // For All People Panel
+    public GameObject allPeoplePanel;
+
     // For Following Buttons
     public bool isFollowing = false;
 
@@ -115,6 +118,7 @@ public class MainMenuGUI : MonoBehaviour {
         loggedOutPanel.SetActive(true);
         blackoutPanel.SetActive(false);
         mustBeLoggedInPanel.SetActive(false);
+        allPeoplePanel.SetActive(false);
 
         networkObject = GameObject.FindGameObjectWithTag("Network");
         myNetwork = networkObject.GetComponent<MyNetwork>();
@@ -164,6 +168,7 @@ public class MainMenuGUI : MonoBehaviour {
 		homeButtonPanel.SetActive(false);
 		searchPanel.SetActive(false);
         myNetwork.isLoggedIn = false;
+        allPeoplePanel.SetActive(false);
 
         newUsername.text = "";
         newPassword.text = "";
@@ -351,8 +356,7 @@ public class MainMenuGUI : MonoBehaviour {
         {
             Debug.Log("Setting Posts to: " + chirps);
             currentChirpsText.text = chirps;
-        }
-            
+        }     
     }
 
     public void LoginUser()
@@ -362,9 +366,20 @@ public class MainMenuGUI : MonoBehaviour {
         currentUsername.text = newUsername.text;
     }
 
-    public void DisplayAllChirppersPanel()
+    public void DisplayAllPeoplePanel()
     {
+        myNetwork.setSearchFieldPosition(250);
+        searchPanel.SetActive(false);
+        followingPanel.SetActive(false);
+        followersPanel.SetActive(false);
+        recentChirpsPanel.SetActive(false);
+        homeChirpsPanel.SetActive(false);
+        myChirpsPanel.SetActive(false);
+        loginFailedPanel.SetActive(false);
+        allPeoplePanel.SetActive(true);
 
+        string temp = currentUsername.text.Remove(0, 1);
+        StartCoroutine(myNetwork.getTopChirppers(temp));
     }
 
     public void DisplayAddAccountFailedPanel()
@@ -440,6 +455,7 @@ public class MainMenuGUI : MonoBehaviour {
 		recentChirpsPanel.SetActive(false);
 		myChirpsPanel.SetActive(false);
 		loginFailedPanel.SetActive(false);
+        allPeoplePanel.SetActive(false);
 	}
 
 	public void DisplayRecentChirpsPanel()
@@ -453,6 +469,7 @@ public class MainMenuGUI : MonoBehaviour {
 		recentChirpsPanel.SetActive(true);
 		myChirpsPanel.SetActive(false);
 		loginFailedPanel.SetActive(false);
+        allPeoplePanel.SetActive(false);
 	}
 
     public void DisplayHomeChirpsPanel()
@@ -465,6 +482,7 @@ public class MainMenuGUI : MonoBehaviour {
         recentChirpsPanel.SetActive(false);
         myChirpsPanel.SetActive(false);
         loginFailedPanel.SetActive(false);
+        allPeoplePanel.SetActive(false);
 		StartCoroutine(myNetwork.getFollowingChirps());
     }
 
@@ -478,6 +496,7 @@ public class MainMenuGUI : MonoBehaviour {
         homeChirpsPanel.SetActive(false);
         recentChirpsPanel.SetActive(false);
         myChirpsPanel.SetActive(true);
+        allPeoplePanel.SetActive(false);
         loginFailedPanel.SetActive(false);
     }
 
@@ -491,6 +510,7 @@ public class MainMenuGUI : MonoBehaviour {
         homeChirpsPanel.SetActive(false);
         myChirpsPanel.SetActive(false);
         loginFailedPanel.SetActive(false);
+        allPeoplePanel.SetActive(false);
 
         string temp = currentUsername.text.Remove(0, 1);
         StartCoroutine(myNetwork.getFollowing(temp, null));
@@ -507,6 +527,7 @@ public class MainMenuGUI : MonoBehaviour {
         recentChirpsPanel.SetActive(false);
         myChirpsPanel.SetActive(false);
         loginFailedPanel.SetActive(false);
+        allPeoplePanel.SetActive(false);
 
         string temp = currentUsername.text.Remove(0, 1);
         StartCoroutine(myNetwork.getFollowers(temp, null));

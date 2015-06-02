@@ -891,6 +891,179 @@ public class MyNetwork : MonoBehaviour {
         }
 	}
 
+    public IEnumerator getTopChirppers(string thisUsername)
+    {
+        WWWForm form = new WWWForm();
+
+        if (isLoggedIn)
+        {
+            form.AddField("getTopChirppers", "");
+            form.AddField("username", thisUsername);
+        }
+        else
+            form.AddField("getTopChirppers", "");
+        
+        WWW download = new WWW(url, form);
+        yield return download;
+
+        if (!string.IsNullOrEmpty(download.error))
+        {
+            print("Error downloading: " + download.error);
+        }
+        else
+        {
+            //gets results and stores them into string array split with delimiter \\
+            string[] words = download.text.Split(delim, System.StringSplitOptions.None);
+            for (int i = 0; i < words.Length; i++)
+            {
+                //print(i + ": " + words[i]);
+            }
+
+            Debug.Log("Total number of Chirppers: " + words[0]);
+
+            GameObject allPeople = GameObject.Find("All People Panel");
+            //get 6 recent chirppers and add them to the panel
+            if (allPeople != null)
+            {
+                //Removes previous old chirppers
+                if (allPeople.transform.Find("allPeople1") != null)
+                    Destroy(allPeople.transform.Find("allPeople1").gameObject);
+                if (allPeople.transform.Find("allPeople2") != null)
+                    Destroy(allPeople.transform.Find("allPeople2").gameObject);
+                if (allPeople.transform.Find("allPeople3") != null)
+                    Destroy(allPeople.transform.Find("allPeople3").gameObject);
+                if (allPeople.transform.Find("allPeople4") != null)
+                    Destroy(allPeople.transform.Find("allPeople4").gameObject);
+                if (allPeople.transform.Find("allPeople5") != null)
+                    Destroy(allPeople.transform.Find("allPeople5").gameObject);
+                if (allPeople.transform.Find("allPeople6") != null)
+                    Destroy(allPeople.transform.Find("allPeople6").gameObject);
+            }
+
+            if (Convert.ToInt32(words[0]) < 1)
+            {
+                Debug.Log("There are no Chirppers in the database.");
+            }
+            else
+            {
+                menu.noFollowingText.enabled = false;
+
+                // Might not need this check here
+                /*for (int i = 1; i < words.Length - 1; i++)
+                {
+                    Debug.Log("Following #" + i + ": " + words[i]);
+                    Debug.Log("Does [" + checkUsername + "] == " + "[" + words[i] + "]?");
+
+                    if (!menu.isFollowing)
+                        if (checkUsername == words[i])
+                        {
+                            Debug.Log("Setting isFollowing to true!");
+                            // Set some match variable equal to true
+                            menu.isFollowing = true;
+                        }
+                }*/
+
+                //if (checkUsername == null)
+                // Set some match variable equal to false
+                //menu.isFollowing = false;
+
+                if (menu.allPeoplePanel.activeSelf)
+                {
+                    Debug.Log("Displaying a list of all the people on Chirpper...");
+
+                    int index = 1;
+
+                    for (int i = 1; i < Convert.ToInt32(words[0]) * 2 - 1; i += 2)
+                    {
+                        Debug.Log("Chirpper #" + index + ": " + words[i]);
+                        Vector3 newPos = allPeople.transform.position;
+
+                        // Chirpper #1 (-70, 2)     Chirpper #2 (203, 2)
+                        // Chirpper #3 (-70, -66)   Chirpper #4 (203, -66)
+                        // Chirpper #5 (-70, -135)  Chirpper #6 (203, -135)
+                        switch (index)
+                        {
+                            // Chirpper #1 Position
+                            case 1:
+                                {
+                                    newPos.x = -70;
+                                    newPos.y = 2;
+                                    break;
+                                }
+                            // Chirpper #2 Position
+                            case 2:
+                                {
+                                    newPos.x = 203;
+                                    newPos.y = 2;
+                                    break;
+                                }
+                            // Chirpper #3 Position
+                            case 3:
+                                {
+                                    newPos.x = -70;
+                                    newPos.y = -66;
+                                    break;
+                                }
+                            // Chirpper #4 Position
+                            case 4:
+                                {
+                                    newPos.x = 203;
+                                    newPos.y = -66;
+                                    break;
+                                }
+                            // Chirpper #5 Position
+                            case 5:
+                                {
+                                    newPos.x = -70;
+                                    newPos.y = -135;
+                                    break;
+                                }
+                            // Chirpper #6 Position
+                            case 6:
+                                {
+                                    newPos.x = 203;
+                                    newPos.y = -135;
+                                    break;
+                                }
+                            // Default to the first position
+                            default:
+                                {
+                                    newPos.x = -70;
+                                    newPos.y = 2;
+                                    break;
+                                }
+                        }
+
+                        index++;
+
+                        //newPos.y = 2 - ((i / 4) * 75);
+                        //Debug.Log("X-POS: " + newPos.x + " Y-POS: " + newPos.y);
+                        GameObject temp = Instantiate(chirpperPrefab, newPos, Quaternion.identity) as GameObject;
+                        temp.transform.position = newPos;
+                        temp.transform.SetParent(allPeople.transform, false);
+                        temp.name = "allPeople" + i;
+                        ChirpperInfo ci = temp.GetComponent<ChirpperInfo>();
+
+                        ci.username.text = words[i];
+                        ci.description.text = "This is a small sample of some description text...";
+                        ci.time.text = "00:14";
+                        ci.addUnfollowButtonFunction();
+                        ci.addFollowButtonFunction();
+
+                        if (words[i + 1] == "true")
+                        {
+                            temp.transform.Find("Unfollow Button").gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            temp.transform.Find("Follow Button").gameObject.SetActive(true);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 	public void refreshFollowingChirps(){
 		StartCoroutine (getFollowingChirps ());
 	}
