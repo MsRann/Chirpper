@@ -565,9 +565,9 @@ public class MyNetwork : MonoBehaviour {
                     //print(i + ": " + words[i]);
                 }
 
-                Debug.Log("Number of people following [" + thisUsername + "]: " + words[0]);
+				Debug.Log("Number of people following [" + thisUsername + "]: " + words[0]);
                 menu.SetUserInfo("nc", words[0], "nc");
-
+				menu.numberOfFollowers.text = "Followers:  " +  words[0] + " Chirppers";
 				GameObject followers = GameObject.Find("Followers Panel");
 				//get 6 recent chirppers and add them to the panel
 				if (followers != null){
@@ -738,6 +738,7 @@ public class MyNetwork : MonoBehaviour {
             }
             else
             {
+
                 //gets results and stores them into string array split with delimiter \\
                 string[] words = download.text.Split(delim, System.StringSplitOptions.None);
                 for (int i = 0; i < words.Length; i++)
@@ -746,7 +747,9 @@ public class MyNetwork : MonoBehaviour {
                 }
 
                 Debug.Log("Number of people [" + thisUsername + "] is Following: " + words[0]);
-                menu.SetUserInfo(words[0], "nc", "nc");
+				menu.SetUserInfo(words[0], "nc", "nc");
+
+				menu.numberOfFollowing.text = "Following:  " + words[0] + " Chirppers";
 
 				GameObject following = GameObject.Find("Following Panel");
 				//get 6 recent chirppers and add them to the panel
@@ -800,8 +803,8 @@ public class MyNetwork : MonoBehaviour {
                         //loop a max of 6 times
                         int loop = 0;
 
-                        if (words.Length > 6)
-                            loop = 6;
+                        if (words.Length > 7)
+                            loop = 7;
                         else
                             loop = words.Length - 1;
                         

@@ -516,7 +516,7 @@ public class MainMenuGUI : MonoBehaviour {
 
         string temp = currentUsername.text.Remove(0, 1);
         StartCoroutine(myNetwork.getFollowing(temp, null));
-        numberOfFollowing.text = "Following:  " + currentFollowingText.text + " Chirppers";
+        
     }
 
     public void DisplayFollowersPanel()
@@ -533,7 +533,7 @@ public class MainMenuGUI : MonoBehaviour {
 
         string temp = currentUsername.text.Remove(0, 1);
         StartCoroutine(myNetwork.getFollowers(temp, null));
-        numberOfFollowers.text = "Followers:  " + currentFollowersText.text + " Chirppers";
+        
     }
 
 	public void DisplayLoginPanel()
@@ -580,6 +580,7 @@ public class MainMenuGUI : MonoBehaviour {
         signUpPanel.SetActive(false);
         createUsernamePanel.SetActive(false);
         homeButtonPanel.SetActive(true);
+		loggedOutHomeButtonPanel.SetActive(false);
     }
 
 	public void CancelLogin()
